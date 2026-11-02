@@ -19,7 +19,7 @@ import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
-import {assessKillProcess, averageFrequencyGhz, collectFans, collectTemperatures,
+import {assessKillProcess, alertDecision, averageFrequencyGhz, collectFans, collectTemperatures,
     collectVoltages, computeCoreShares, computeCpuShares, computeDiskRates,
     computeNetRates, formatBytes, formatDuration, formatRate, groupProcesses,
     isFiniteRect, isPointInsideRect, ownedProcessEntries, parseBatteryDetails,
@@ -478,9 +478,8 @@ class ProcMonIndicator extends PanelMenu.Button {
     _maybeAlert(kind, message, level = 1) {
         const now = GLib.get_monotonic_time() / 1000;
         const state = this._alertState.get(kind) ?? {level: 0, at: 0, acked: false};
-        const escalated = level > state.level;
-        const cooled = now - state.at >= ALERT_COOLDOWN_MS;
-        if (!escalated && (state.acked || !cooled))
+        const {escalated, cooled, shouldNotify} = alertDecision(state, level, now, ALERT_COOLDOWN_MS);
+        if (!shouldNotify)
             return;
         const notif = new MessageTray.Notification(this._alertSource(),
             _('ProcMon'), message);

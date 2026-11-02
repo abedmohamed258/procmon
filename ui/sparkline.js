@@ -10,9 +10,11 @@ export function addSparkline(ind, content) {
             style_class: 'procmon-sparkline-value',
         });
         content.add_child(ind._sparkValue);
+        // x_expand lets the area fill the card instead of being pinned to
+        // the 120px legacy width (which left a 230px empty gap on the right)
         const area = new St.DrawingArea({
             style_class: 'procmon-sparkline',
-            width: SPARKLINE_WIDTH,
+            x_expand: true,
             height: SPARKLINE_HEIGHT,
         });
         area.connect('repaint', area => ind._paintSparkline(area));
