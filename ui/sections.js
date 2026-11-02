@@ -75,6 +75,14 @@ export function toggleGroup(ind, group) {
         group.chevron.text = group.open ? '▾' : '▸';
         group.box.visible = group.open;
         if (group.open) {
+            group.box.opacity = 0;
+            group.box.ease({
+                duration: 120,
+                mode: Clutter.AnimationMode.EASE_OUT_CUBIC,
+                opacity: 255,
+            });
+        }
+        if (group.open) {
             ind._openSections.add(group.id);
             ind._renderValues();
         } else {
@@ -161,7 +169,12 @@ export function toggleSection(ind, section) {
         section.chevron.text = open ? '▾' : '▸';
         if (open) {
             section.box.visible = true;
-            section.box.opacity = 255;
+            section.box.opacity = 0;
+            section.box.ease({
+                duration: 120,
+                mode: Clutter.AnimationMode.EASE_OUT_CUBIC,
+                opacity: 255,
+            });
             ind._openSections.add(section.id);
             // fill the newly revealed body at once instead of showing a
             // half-painted section that only catches up on the next tick

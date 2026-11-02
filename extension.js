@@ -19,7 +19,7 @@ import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
-import {assessKillProcess, alertDecision, averageFrequencyGhz, collectFans, collectTemperatures,
+import {assessKillProcess, alertDecision, averageFrequencyGhz, parseCgroupUnit, collectFans, collectTemperatures,
     collectVoltages, computeCoreShares, computeCpuShares, computeDiskRates,
     computeNetRates, formatBytes, formatDuration, formatRate, groupProcesses,
     isFiniteRect, isPointInsideRect, ownedProcessEntries, parseBatteryDetails,
@@ -1174,6 +1174,16 @@ class ProcMonIndicator extends PanelMenu.Button {
                 : _('Send SIGTERM to “%s” (%s processes)?').format(group.name, count),
             style_class: 'procmon-dialog-text',
         }));
+        // supervised processes come back: say so before the user kills them
+        const supervisor = this._supervisorFor(group.pids);
+        if (supervisor) {
+            body.add_child(new St.Label({
+                text: supervisor.kind === 'service'
+                    ? _('Supervised by %s — it may restart.').format(iso(supervisor.unit))
+                    : _('Started by the session — it may be relaunched.'),
+                style_class: 'procmon-dialog-note',
+            }));
+        }
         dialog.contentLayout.add_child(body);
         dialog.addButton({label: _('Cancel'), action: () => dialog.close(),
             key: Clutter.KEY_Escape});
@@ -1187,6 +1197,32 @@ class ProcMonIndicator extends PanelMenu.Button {
             },
         });
         dialog.open();
+    }
+
+    // Which supervisor owns these pids? systemd services come back after a
+    // kill unless the unit is stopped; session-app scopes may be relaunched.
+    _supervisorFor(pids) {
+        const units = new Set();
+        let appScope = false;
+        for (const pid of pids) {
+            try {
+                const [ok, bytes] = GLib.file_get_contents(`/proc/${pid}/cgroup`);
+                if (!ok)
+                    continue;
+                const parsed = parseCgroupUnit(new TextDecoder().decode(bytes));
+                if (!parsed)
+                    continue;
+                if (parsed.kind === 'service')
+                    units.add(parsed.unit);
+                else
+                    appScope = true;
+            } catch (error) {
+                // a raced exit simply means no supervisor to report
+            }
+        }
+        if (units.size > 0)
+            return {kind: 'service', unit: [...units][0]};
+        return appScope ? {kind: 'app', unit: null} : null;
     }
 
     // owned pids only, via the unified lib filter; a one-uid group shortcut
@@ -1306,9 +1342,28 @@ class ProcMonIndicator extends PanelMenu.Button {
                 stillRunning.push(target.pid);
         }
         if (stillRunning.length > 0) {
-            Main.notify(_('Did not terminate'),
-                _n('%s process is still running', '%s processes are still running',
-                    stillRunning.length).format(iso(stillRunning.length)));
+            const supervisor = this._supervisorFor(stillRunning);
+            if (supervisor?.kind === 'service') {
+                const unit = supervisor.unit;
+                const notif = new MessageTray.Notification(this._alertSource(),
+                    _('ProcMon'),
+                    _('%s restarted — supervised by %s').format(group.name, iso(unit)));
+                notif.addAction(_('Stop %s').format(iso(unit)), () => {
+                    void startup.runSystemctl(this, ['stop', unit]);
+                });
+                const source = this._alertSource();
+                if (typeof source.showNotification === 'function')
+                    source.showNotification(notif);
+                else if (typeof source.notify === 'function')
+                    source.notify(notif);
+                else
+                    Main.notify(_('Did not terminate'),
+                        _('%s is supervised by %s').format(group.name, iso(unit)));
+            } else {
+                Main.notify(_('Did not terminate'),
+                    _n('%s process is still running', '%s processes are still running',
+                        stillRunning.length).format(iso(stillRunning.length)));
+            }
         }
         if (this.menu.isOpen)
             void this._sampleMenuData();
