@@ -1,0 +1,360 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: procmon 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-11-01 14:03+0200\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+
+msgid "%s process"
+msgid_plural "%s processes"
+msgstr[0] "لا عمليات"
+msgstr[1] "عملية واحدة (%s)"
+msgstr[2] "عمليتان (%s)"
+msgstr[3] "%s عمليات"
+msgstr[4] "%s عملية"
+msgstr[5] "%s عملية"
+
+msgid "%s process is still running"
+msgid_plural "%s processes are still running"
+msgstr[0] "لم يبقَ أي عملية قيد التشغيل"
+msgstr[1] "عملية واحدة ما تزال قيد التشغيل (%s)"
+msgstr[2] "عمليتان ما تزالان قيد التشغيل (%s)"
+msgstr[3] "%s عمليات ما تزال قيد التشغيل"
+msgstr[4] "%s عملية ما تزال قيد التشغيل"
+msgstr[5] "%s عملية ما تزال قيد التشغيل"
+
+msgid "%s process not signaled"
+msgid_plural "%s processes not signaled"
+msgstr[0] "لم تُرسَل الإشارة إلى أي عملية"
+msgstr[1] "لم تُرسَل الإشارة إلى عملية واحدة (%s)"
+msgstr[2] "لم تُرسَل الإشارة إلى عمليتين (%s)"
+msgstr[3] "لم تُرسَل الإشارة إلى %s عمليات"
+msgstr[4] "لم تُرسَل الإشارة إلى %s عملية"
+msgstr[5] "لم تُرسَل الإشارة إلى %s عملية"
+
+msgid "Alerts"
+msgstr "التنبيهات"
+
+msgid "Available %s"
+msgstr "المتاح %s"
+
+msgid "Battery"
+msgstr "البطارية"
+
+msgid "Buffers %s"
+msgstr "المخازن المؤقتة %s"
+
+msgid "CPU"
+msgstr "المعالج"
+
+msgid "CPU cores and frequencies"
+msgstr "أنوية المعالج وتردداته"
+
+msgid "CPU usage"
+msgstr "استخدام المعالج"
+
+msgid "Cached %s"
+msgstr "مُخزَّن مؤقتًا %s"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Charge"
+msgstr "الشحن"
+
+msgid "Charging"
+msgstr "جارٍ الشحن"
+
+msgid "Confirm before terminating processes"
+msgstr "التأكيد قبل إنهاء العمليات"
+
+msgid "Cores %s"
+msgstr "الأنوية %s"
+
+msgid "Could not open System Monitor"
+msgstr "تعذّر فتح مراقب النظام"
+
+msgid "Could not terminate %s"
+msgstr "تعذّر إنهاء %s"
+
+msgid "Did not terminate"
+msgstr "لم يكتمل الإنهاء"
+
+msgid "Discharging"
+msgstr "جارٍ التفريغ"
+
+msgid "Disk"
+msgstr "القرص"
+
+msgid "Disk %.0f%% full"
+msgstr "القرص امتلأ بنسبة %.0f%%"
+
+msgid "Disk alert (%)"
+msgstr "تنبيه القرص (%)"
+
+msgid "Disk usage"
+msgstr "استخدام الأقراص"
+
+msgid "Each toggle adds or removes a section of the open menu."
+msgstr "كل مفتاح يضيف أو يحذف قسمًا من القائمة المفتوحة."
+
+msgid "Fans"
+msgstr "المراوح"
+
+msgid "Force kill"
+msgstr "إنهاء قسري"
+
+msgid "Frequencies %s"
+msgstr "الترددات %s"
+
+msgid "Fully charged"
+msgstr "اكتمل الشحن"
+
+msgid "General"
+msgstr "عام"
+
+msgid "Graphics"
+msgstr "الرسوميات"
+
+msgid "How many highest-usage processes each of the two lists shows. 3–20."
+msgstr "كم عملية ذات أعلى استخدام تُعرض في كل من القائمتين. 3–20."
+
+msgid "How often /proc samples update the panel label. 500–10000."
+msgstr "كم مرة تُحدِّث عيّنات fproc تسمية الشريط. 500–10000."
+
+msgid ""
+"How often sensor sweeps and process scans run while the menu is open. 1000–"
+"30000."
+msgstr ""
+"كم مرة تجري مسوحات المستشعرات وفحوص العمليات والقائمة مفتوحة. 1000–30000."
+
+msgid "I/O"
+msgstr "الإدخال/الإخراج"
+
+msgid "Load %s"
+msgstr "الحمل %s"
+
+msgid "Memory"
+msgstr "الذاكرة"
+
+msgid "Memory %.0f%% — almost full"
+msgstr "الذاكرة %.0f%% — على وشك الامتلاء"
+
+msgid "Memory alert (%)"
+msgstr "تنبيه الذاكرة (%)"
+
+msgid "Memory details"
+msgstr "تفاصيل الذاكرة"
+
+msgid "Memory usage"
+msgstr "استخدام الذاكرة"
+
+msgid "Menu refresh (ms)"
+msgstr "تحديث القائمة (م ث)"
+
+msgid "Network"
+msgstr "الشبكة"
+
+msgid "Network rates"
+msgstr "سرعات الشبكة"
+
+msgid "No GPU sensors"
+msgstr "لا توجد مستشعرات رسوميات"
+
+msgid "No battery"
+msgstr "لا توجد بطارية"
+
+msgid "No data"
+msgstr "لا توجد بيانات"
+
+msgid "No fan sensors"
+msgstr "لا توجد مستشعرات مراوح"
+
+msgid "No filesystems"
+msgstr "لا توجد أنظمة ملفات"
+
+msgid "No network interfaces"
+msgstr "لا توجد واجهات شبكة"
+
+msgid "No sample"
+msgstr "لا توجد عيّنة"
+
+msgid "No temperature sensors"
+msgstr "لا توجد مستشعرات حرارة"
+
+msgid "No voltage sensors"
+msgstr "لا توجد مستشعرات جهد"
+
+msgid "Not your process"
+msgstr "ليست من عملياتك"
+
+msgid "Notify when RAM usage goes above this percent. 0 disables it. 0–100."
+msgstr "التنبيه عندما يتجاوز استخدام الذاكرة هذه النسبة. 0 يعطّله. 0–100."
+
+msgid ""
+"Notify when the fullest mounted filesystem goes above this percent. 0 "
+"disables it. 0–100."
+msgstr ""
+"التنبيه عندما يتجاوز أعلى نظام ملفات مركّب امتلاءً هذه النسبة. 0 يعطّله. 0–100."
+
+msgid ""
+"Notify when the hottest sensor goes above this value. 0 disables it. 0–120."
+msgstr "تنبيه عند تجاوز أشد المستشعرات سخونة لهذه القيمة. 0 يعطّله. 0–120."
+
+msgid "Open System Monitor"
+msgstr "افتح مراقب النظام"
+
+msgid "Panel"
+msgstr "الشريط"
+
+msgid "Panel refresh (ms)"
+msgstr "تحديث الشريط (م ث)"
+
+msgid "Power now"
+msgstr "القدرة الآن"
+
+msgid "Pressure"
+msgstr "الضغط"
+
+msgid "Pressure (PSI)"
+msgstr "الضغط (PSI)"
+
+msgid "Pressure data unavailable"
+msgstr "بيانات الضغط غير متاحة"
+
+msgid "ProcMon"
+msgstr "ProcMon"
+
+msgid "Process exited"
+msgstr "خرجت العملية"
+
+msgid "Process identity changed"
+msgstr "تغيّرت هوية العملية"
+
+msgid "Processor"
+msgstr "المعالج"
+
+msgid "Protected process"
+msgstr "عملية محمية"
+
+msgid "RAM"
+msgstr "الذاكرة"
+
+msgid "Refresh"
+msgstr "تحديث"
+
+msgid "Rows in each process list"
+msgstr "صفوف كل قائمة عمليات"
+
+msgid "Safety"
+msgstr "الأمان"
+
+msgid "Sections"
+msgstr "الأقسام"
+
+msgid "Send SIGKILL to “%s” (%s processes)?"
+msgstr "إرسال SIGKILL إلى «%s» (عدد العمليات: %s)؟"
+
+msgid "Send SIGTERM to “%s” (%s processes)?"
+msgstr "إرسال SIGTERM إلى «%s» (عدد العمليات: %s)؟"
+
+msgid "Show sparkline"
+msgstr "إظهار المخطط المصغّر"
+
+msgid "Signal failed"
+msgstr "فشل إرسال الإشارة"
+
+msgid "Swap %s / %s"
+msgstr "مبادلة %s من %s"
+
+msgid "Swap not in use"
+msgstr "لا مبادلة قيد الاستخدام"
+
+msgid "System monitor"
+msgstr "مراقب النظام"
+
+msgid "Temperature"
+msgstr "الحرارة"
+
+msgid "Temperature %.0f°C — throttle risk"
+msgstr "حرارة %.0f°م — خطر تقنين الأداء"
+
+msgid "Temperature alert (°C)"
+msgstr "تنبيه الحرارة (°م)"
+
+msgid "Temperatures"
+msgstr "الحرارة"
+
+msgid "Terminate"
+msgstr "إنهاء"
+
+msgid "Terminate %s (%d process)"
+msgid_plural "Terminate %s (%d processes)"
+msgstr[0] "إنهاء %s (عدد العمليات: %d)"
+msgstr[1] "إنهاء %s (عدد العمليات: %d)"
+msgstr[2] "إنهاء %s (عدد العمليات: %d)"
+msgstr[3] "إنهاء %s (عدد العمليات: %d)"
+msgstr[4] "إنهاء %s (عدد العمليات: %d)"
+msgstr[5] "إنهاء %s (عدد العمليات: %d)"
+
+msgid "Threshold notifications shown at most once every 5 minutes per kind."
+msgstr "تنبيهات العتبة تظهر مرة واحدة على الأكثر كل 5 دقائق لكل نوع."
+
+msgid "Time left"
+msgstr "الوقت المتبقي"
+
+msgid "Top processes"
+msgstr "أبرز العمليات"
+
+msgid "Unknown user identity — termination disabled"
+msgstr "تعذّر تحقّق هوية المستخدم — الإنهاء معطّل"
+
+msgid "Up %s"
+msgstr "مدة التشغيل %s"
+
+msgid "Used %s / %s"
+msgstr "المستخدم %s من %s"
+
+msgid "VRAM %s / %s"
+msgstr "ذاكرة الرسوميات %s من %s"
+
+msgid "Voltage"
+msgstr "الجهد"
+
+msgid "Voltages"
+msgstr "الجهد"
+
+msgid "Waiting for the first sample…"
+msgstr "بانتظار أول عيّنة…"
+
+msgid ""
+"When enabled, a click on the × stops first and asks. SIGTERM requests an "
+"exit; SIGKILL cannot be caught by the process and may lose its data."
+msgstr ""
+"عند التمكين يتوقف النقر على × أولًا ويسأل. SIGTERM يطلب خروجًا؛ SIGKILL لا "
+"يمكن للعملية أن تلتقطه وقد تفقد بياناتها."
+
+msgid "Which values the panel indicator shows, picked in this fixed order."
+msgstr "ما القيم التي يعرضها مؤشر الشريط، بالترتيب الثابت هذا."
+
+msgid "avg %s"
+msgstr "المتوسط %s"
+
+msgid "full %s"
+msgstr "كامل %s"
+
+msgid "kill command not found"
+msgstr "أمر kill غير موجود"
+
+msgid "some %s"
+msgstr "بعض %s"
+
+msgid "↓ %s · ↑ %s"
+msgstr "↓ %s · ↑ %s"

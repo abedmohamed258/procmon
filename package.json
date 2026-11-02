@@ -1,0 +1,9 @@
+{
+  "name": "procmon",
+  "version": "1.0.0",
+  "private": true,
+  "description": "اختبارات إضافة GNOME Shell تعمل عبر gjs لا عبر node",
+  "scripts": {
+    "test": "gjs -m tests/parsing.test.js"
+  }
+}

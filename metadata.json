@@ -1,0 +1,9 @@
+{
+  "uuid": "procmon@abed.dev",
+  "name": "ProcMon",
+  "description": "Panel indicator for processor, temperature and memory usage, with a dashboard menu showing uptime, load, memory, sensors, battery, network and disk rates, top processes, and PSI pressure.",
+  "version": 2,
+  "shell-version": ["45", "46", "47", "48", "49"],
+  "settings-schema": "org.gnome.shell.extensions.procmon",
+  "gettext-domain": "procmon@abed.dev"
+}

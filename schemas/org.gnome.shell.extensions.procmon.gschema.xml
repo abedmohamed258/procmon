@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.procmon" path="/org/gnome/shell/extensions/procmon/" gettext-domain="procmon@abed.dev">
+    <key name="refresh-interval-ms" type="i">
+      <default>2000</default>
+      <range min="500" max="10000"/>
+      <summary>Panel refresh interval (ms)</summary>
+    </key>
+    <key name="menu-refresh-ms" type="i">
+      <default>3000</default>
+      <range min="1000" max="30000"/>
+      <summary>Menu refresh interval (ms)</summary>
+    </key>
+    <key name="top-count" type="i">
+      <default>5</default>
+      <range min="3" max="20"/>
+      <summary>Rows in each process list</summary>
+    </key>
+    <key name="panel-items" type="s">
+      <default>'cpu,temp,ram'</default>
+      <summary>Panel items (comma separated)</summary>
+    </key>
+    <key name="kill-confirmation" type="b">
+      <default>true</default>
+      <summary>Confirm before terminating processes</summary>
+    </key>
+    <key name="show-sparkline" type="b">
+      <default>true</default>
+      <summary>Show the CPU/RAM history sparkline in the menu</summary>
+    </key>
+    <key name="temp-alert-c" type="u">
+      <default>0</default>
+      <range min="0" max="120"/>
+      <summary>Notify when temperature exceeds this °C value; 0 disables the alert</summary>
+    </key>
+    <key name="mem-alert-pct" type="u">
+      <default>90</default>
+      <range min="0" max="100"/>
+      <summary>Notify when memory usage exceeds this percent; 0 disables the alert</summary>
+    </key>
+    <key name="disk-alert-pct" type="u">
+      <default>90</default>
+      <range min="0" max="100"/>
+      <summary>Notify when the fullest filesystem exceeds this percent; 0 disables the alert</summary>
+    </key>
+    <key name="show-processes" type="b"><default>true</default></key>
+    <key name="show-cpu" type="b"><default>true</default></key>
+    <key name="show-memory" type="b"><default>true</default></key>
+    <key name="show-temperatures" type="b"><default>true</default></key>
+    <key name="show-fans" type="b"><default>true</default></key>
+    <key name="show-voltages" type="b"><default>true</default></key>
+    <key name="show-battery" type="b"><default>true</default></key>
+    <key name="show-network" type="b"><default>true</default></key>
+    <key name="show-disk" type="b"><default>true</default></key>
+    <key name="show-gpu" type="b"><default>true</default></key>
+    <key name="show-psi" type="b"><default>true</default></key>
+  </schema>
+</schemalist>

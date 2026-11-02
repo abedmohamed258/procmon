@@ -1,0 +1,503 @@
+/* ProcMon — dense instrument panel. Alpha tints only; adapts to light/dark.
+   Scale: 4px rhythm · 11px body · 10px labels · tabular numerals everywhere. */
+
+/* ---- panel indicator ---- */
+.procmon-box {
+    spacing: 6px;
+}
+
+.procmon-label {
+    font-feature-settings: "tnum";
+    font-size: 11px;
+    margin-left: 4px;
+}
+
+.procmon-icon {
+    icon-size: 16px;
+}
+
+/* ---- menu shell ---- */
+.procmon-content {
+    width: 352px;
+    padding: 10px 10px 4px;
+    spacing: 6px;
+}
+
+.procmon-scroll {
+    max-height: 440px;
+}
+
+.procmon-scroll-item {
+    padding: 0px;
+}
+
+/* ---- header ---- */
+.procmon-header {
+    spacing: 6px;
+    padding-bottom: 2px;
+}
+
+.procmon-title {
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 0.2px;
+}
+
+.procmon-meta {
+    font-size: 10px;
+    opacity: 0.6;
+    padding-bottom: 1px;
+    font-feature-settings: "tnum";
+}
+
+/* ---- sparkline ---- */
+.procmon-sparkline {
+    min-height: 34px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 6px;
+    margin-bottom: 4px;
+}
+
+/* ---- summary cards ---- */
+.procmon-cards {
+    spacing: 4px;
+}
+
+.procmon-card {
+    min-width: 0;
+    padding: 7px 9px;
+    border-radius: 9px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    spacing: 3px;
+}
+
+.procmon-card:hover {
+    background-color: rgba(255, 255, 255, 0.075);
+}
+
+.procmon-card-title {
+    font-size: 9px;
+    font-weight: bold;
+    letter-spacing: 0.6px;
+    opacity: 0.55;
+}
+
+.procmon-card-value {
+    font-size: 16px;
+    font-weight: bold;
+    font-feature-settings: "tnum";
+    color: rgba(255, 255, 255, 0.96);
+}
+
+.procmon-value-compact {
+    font-size: 12px;
+}
+
+/* ---- state bars ---- */
+.procmon-bar {
+    height: 3px;
+    border-radius: 2px;
+    background-color: rgba(255, 255, 255, 0.08);
+    margin-top: 1px;
+}
+
+.procmon-bar-fill,
+.procmon-bar-fill-ok {
+    height: 3px;
+    border-radius: 2px;
+    background-color: rgba(94, 160, 255, 0.85);
+    background-gradient-direction: horizontal;
+    background-gradient-start: rgba(94, 160, 255, 0.9);
+    background-gradient-end: rgba(46, 194, 126, 0.9);
+    transition-duration: 250ms;
+}
+
+.procmon-bar-fill-warn {
+    background-color: rgba(255, 190, 79, 0.9);
+    background-gradient-direction: horizontal;
+    background-gradient-start: rgba(255, 206, 96, 0.95);
+    background-gradient-end: rgba(255, 166, 70, 0.9);
+    transition-duration: 250ms;
+}
+
+.procmon-bar-fill-crit {
+    background-color: rgba(255, 91, 75, 0.95);
+    background-gradient-direction: horizontal;
+    background-gradient-start: rgba(255, 110, 90, 0.98);
+    background-gradient-end: rgba(226, 62, 50, 0.95);
+    transition-duration: 250ms;
+}
+
+/* ---- collapsible accordion sections ---- */
+.procmon-acc-card {
+    border-radius: 9px;
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.055);
+    spacing: 0px;
+}
+
+.procmon-acc-header-btn {
+    padding: 0px;
+    border-radius: 9px;
+}
+
+.procmon-acc-header {
+    padding: 7px 10px;
+    spacing: 6px;
+    border-radius: 9px;
+    background-color: transparent;
+}
+
+.procmon-acc-header-btn:hover .procmon-acc-header {
+    background-color: rgba(255, 255, 255, 0.07);
+}
+
+.procmon-acc-header-btn:active .procmon-acc-header {
+    background-color: rgba(255, 255, 255, 0.11);
+}
+
+.procmon-acc-title {
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.2px;
+}
+
+.procmon-acc-summary {
+    font-size: 9.5px;
+    opacity: 0.55;
+    font-feature-settings: "tnum";
+}
+
+.procmon-acc-chevron {
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.procmon-acc-card {
+    margin-top: 2px;
+}
+
+.procmon-acc-body {
+    padding: 6px 10px 10px;
+    spacing: 1px;
+}
+
+.procmon-hint {
+    font-size: 9.5px;
+    opacity: 0.45;
+    padding: 4px 0 2px;
+}
+
+.procmon-subtitle {
+    font-size: 9.5px;
+    font-weight: bold;
+    letter-spacing: 0.3px;
+    opacity: 0.55;
+    padding-top: 4px;
+    padding-bottom: 1px;
+}
+
+.procmon-section-body {
+    spacing: 1px;
+}
+
+/* ---- simple keyword-value lines ---- */
+.procmon-line {
+    padding: 0px;
+    spacing: 6px;
+    min-height: 16px;
+}
+
+.procmon-line-name {
+    font-size: 11px;
+    opacity: 0.75;
+}
+
+.procmon-line-value {
+    font-size: 11px;
+    font-feature-settings: "tnum";
+}
+
+/* ---- process rows: fixed columns so numbers never jitter ---- */
+.procmon-row {
+    padding: 3px 6px;
+    spacing: 6px;
+    min-height: 24px;
+    border-radius: 6px;
+}
+
+.procmon-row:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+}
+
+.procmon-row-icon {
+    icon-size: 13px;
+    opacity: 0.85;
+}
+
+.procmon-row-name {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.procmon-row-value {
+    font-size: 11px;
+    font-weight: bold;
+    font-feature-settings: "tnum";
+    color: rgba(255, 255, 255, 0.95);
+    min-width: 46px;
+    text-align: right;
+}
+
+.procmon-group-count {
+    font-size: 9px;
+    padding: 0px 4px 1px;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.09);
+    opacity: 0.8;
+}
+
+/* ---- kill button: fixed slot, never shifts the value column ---- */
+.procmon-kill {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    border-radius: 10px;
+    padding: 0px;
+    background-color: transparent;
+}
+
+.procmon-kill:hover {
+    background-color: rgba(255, 70, 55, 0.45);
+}
+
+.procmon-kill:active {
+    background-color: rgba(255, 70, 55, 0.65);
+}
+
+.procmon-kill-label {
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+/* ---- footer actions: one compact toolbar ---- */
+.procmon-footer {
+    padding: 4px 0 8px;
+    spacing: 6px;
+}
+
+.procmon-footer-btn {
+    padding: 6px 8px;
+    border-radius: 8px;
+    spacing: 6px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.procmon-footer-btn:hover {
+    background-color: rgba(255, 255, 255, 0.075);
+}
+
+.procmon-footer-btn:active {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.procmon-footer-icon {
+    icon-size: 13px;
+}
+
+.procmon-footer-label {
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* ---- per-core heatmap: real cells, colour by load ---- */
+.procmon-core-grid {
+    spacing: 4px;
+    margin-top: 2px;
+}
+
+.procmon-core-wrap {
+    spacing: 4px;
+}
+
+.procmon-core-row {
+    spacing: 4px;
+}
+
+.procmon-core-cell {
+    min-width: 0px;
+    spacing: 0px;
+    padding: 4px 5px 5px;
+    border-radius: 7px;
+    background-color: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.procmon-core-head {
+    spacing: 4px;
+}
+
+.procmon-core-index {
+    font-size: 9px;
+    opacity: 0.65;
+    font-feature-settings: "tnum";
+    min-width: 10px;
+}
+
+.procmon-core-percent {
+    font-size: 11px;
+    font-weight: bold;
+    font-feature-settings: "tnum";
+    opacity: 1;
+}
+
+.procmon-core-bar {
+    height: 4px;
+    border-radius: 2px;
+    margin-top: 4px;
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.procmon-core-bar-fill {
+    height: 4px;
+    border-radius: 2px;
+    background-color: rgba(94, 160, 255, 0.95);
+    transition-duration: 250ms;
+}
+
+.procmon-core-bar-fill.procmon-hot {
+    background-color: rgba(255, 190, 79, 0.95);
+}
+
+.procmon-core-bar-fill.procmon-critical {
+    background-color: rgba(255, 91, 75, 0.98);
+}
+
+/* ---- kill confirmation dialog ---- */
+.procmon-dialog {
+    padding: 10px;
+    spacing: 8px;
+}
+
+.procmon-dialog-text {
+    font-size: 13px;
+    line-height: 1.4;
+    max-width: 420px;
+}
+
+/* ---- level-1 groups: five collapsible containers ---- */
+.procmon-group {
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    margin-top: 4px;
+}
+
+.procmon-group-header-btn {
+    padding: 0px;
+    border-radius: 10px;
+}
+
+.procmon-group-header {
+    padding: 8px 10px;
+    spacing: 6px;
+    border-radius: 10px;
+}
+
+.procmon-group-header-btn:hover .procmon-group-header {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.procmon-group-icon {
+    icon-size: 13px;
+    opacity: 0.75;
+}
+
+.procmon-group-title {
+    font-size: 11.5px;
+    font-weight: bold;
+    letter-spacing: 0.2px;
+}
+
+.procmon-group-summary {
+    font-size: 9.5px;
+    opacity: 0.5;
+    font-feature-settings: "tnum";
+}
+
+.procmon-group-chevron {
+    font-size: 11px;
+    opacity: 0.65;
+}
+
+.procmon-group-body {
+    padding: 0px 6px 6px;
+    spacing: 2px;
+}
+
+/* ---- level-2 subsections: indent inside a group, no double frame ---- */
+.procmon-sub-card {
+    border-radius: 7px;
+    background-color: rgba(255, 255, 255, 0.025);
+}
+
+.procmon-sub-header-btn {
+    padding: 0px;
+    border-radius: 7px;
+}
+
+.procmon-sub-header {
+    padding: 5px 8px;
+    spacing: 6px;
+    border-radius: 7px;
+}
+
+.procmon-sub-header-btn:hover .procmon-sub-header {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.procmon-sub-title {
+    font-size: 10.5px;
+    font-weight: bold;
+    opacity: 0.85;
+}
+
+.procmon-sub-summary {
+    font-size: 9px;
+    opacity: 0.45;
+    font-feature-settings: "tnum";
+}
+
+.procmon-sub-chevron {
+    font-size: 9.5px;
+    opacity: 0.55;
+}
+
+.procmon-sub-body {
+    padding: 2px 6px 6px;
+    spacing: 1px;
+}
+
+/* ---- permanent per-core block (never collapsible) ---- */
+.procmon-cores-block {
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 8px 10px 10px;
+    margin-top: 2px;
+}
+
+.procmon-cores-title {
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 0.6px;
+    opacity: 0.6;
+    padding-bottom: 3px;
+}
