@@ -72,6 +72,7 @@ export function renderSummaryCards(ind) {
             ind._sparkValue.text = `${iso(Math.round(ind._cpuPercent))}% CPU · ${iso(ind._memory ? Math.round(percentOf(ind._memory.usedMb, ind._memory.totalMb)) : 0)}% RAM`;
 
         const third = cards.third;
+        third.barBox.visible = cards.thirdKind === 'gpu';
         if (cards.thirdKind === 'gpu') {
             const gpu = (ind._sensors?.gpus ?? [])[0];
             if (gpu && gpu.usagePercent !== null) {
@@ -86,7 +87,7 @@ export function renderSummaryCards(ind) {
             third.value.text = rates
                 ? `${_('↓ %s · ↑ %s').format(iso(formatRate(rates.readPerSecond)),
                     iso(formatRate(rates.writePerSecond)))}`
-                : _('No data');
+                : _('Sampling…');
         }
     }
 
@@ -196,7 +197,9 @@ export function renderIo(ind) {
             cards.third.value.text = rates
                 ? `${_('↓ %s · ↑ %s').format(iso(formatRate(rates.readPerSecond)),
                     iso(formatRate(rates.writePerSecond)))}`
-                : _('No data');
+                : _('Sampling…');
+            // a speed has no 0–100 fill; the bar belongs to the GPU card only
+            cards.third.barBox.visible = false;
         }
         const section = ind._ui.network;
         if (!section)
@@ -212,7 +215,7 @@ export function renderIo(ind) {
             entry.value.text = rate
                 ? `${_('↓ %s · ↑ %s').format(iso(formatRate(rate.rxPerSecond)),
                     iso(formatRate(rate.txPerSecond)))}`
-                : _('No sample');
+                : _('Sampling…');
         });
     }
 
@@ -241,9 +244,10 @@ export function renderMemorySection(ind) {
     if (!ui)
         return;
     const memory = ind._memory;
-    if (!memory) {
-        ui.section.hintLabel.visible = true;
-        return;
+        if (!memory) {
+            ui.section.hintLabel.text = _('Waiting for memory sample…');
+            ui.section.hintLabel.visible = true;
+            return;
     }
     ui.section.hintLabel.visible = false;
     const rows = ui.rows;

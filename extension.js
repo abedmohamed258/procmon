@@ -422,8 +422,10 @@ class ProcMonIndicator extends PanelMenu.Button {
             this._recordSparkSample();
             this._maybeMemoryAlert();
             void this._refreshDiskUsage();
+            // repaint every open section, not just the summary cards: details
+            // used to stay on "No data" until the next menu tick
             if (this.menu.isOpen)
-                this._renderSummaryCards();
+                this._renderValues();
         } catch (error) {
             console.warn(`procmon: panel sample failed: ${error}`);
         } finally {
@@ -442,12 +444,8 @@ class ProcMonIndicator extends PanelMenu.Button {
     _recordSparkSample() {
         return sparkline.recordSparkSample(this);
     }
-    _paintSparkline(area) {
-        return sparkline.paintSparkline(this, area);
-    }
-
-    _drawSparkSeries(cr, width, height, inset, history, red, green, blue, lineAlpha) {
-        return sparkline.drawSparkSeries(this, cr, width, height, inset, history, red, green, blue, lineAlpha);
+    _paintSparkline() {
+        return sparkline.paintSparkline(this);
     }
     _alertSource() {
         if (!this._alertSource) {
@@ -818,6 +816,10 @@ class ProcMonIndicator extends PanelMenu.Button {
             }
 
             this._memory = parseMemInfo(memText) ?? this._memory;
+            // paint the cheap /proc data before the slower sensor sweep, so
+            // memory/CPU sections never show a stale placeholder first
+            if (this.menu.isOpen)
+                this._renderValues();
             await this._refreshMenuSensors();
             await this._sampleIo();
             if (this.menu.isOpen)
@@ -1087,12 +1089,12 @@ class ProcMonIndicator extends PanelMenu.Button {
         return rows.renderProcessRows(this);
     }
 
-    _paintProcessRows(rows, entries, valueFor, highlightFor) {
-        return rows.paintProcessRows(this, rows, entries, valueFor, highlightFor);
+    _paintProcessRows(rowSet, entries, valueFor, highlightFor) {
+        return rows.paintProcessRows(this, rowSet, entries, valueFor, highlightFor);
     }
 
-    _syncRowsVisibility(rows, expected) {
-        return rows.syncRowsVisibility(this, rows, expected);
+    _syncRowsVisibility(rowSet, expected) {
+        return rows.syncRowsVisibility(this, rowSet, expected);
     }
 
     _setRowIcon(row, group) {

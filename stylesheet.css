@@ -488,3 +488,27 @@
     opacity: 0.8;
     margin-bottom: 2px;
 }
+
+/* ---- sparkline (pure St bars, no Cairo surface) ---- */
+.procmon-sparkline-value {
+    font-size: 10px;
+    font-feature-settings: "tnum";
+    opacity: 0.8;
+    margin-bottom: 3px;
+}
+
+.procmon-sparkbars {
+    spacing: 2px;
+    height: 32px;
+    padding: 4px 6px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.procmon-sparkbar {
+    width: 4px;
+    min-width: 2px;
+    border-radius: 1px;
+    background-color: rgba(53, 132, 228, 0.85);
+}
