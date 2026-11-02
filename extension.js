@@ -34,9 +34,9 @@ import * as renderers from './ui/renderers.js';
 
 import {_, _n, iso, FIRST_SAMPLE_MS, IO_WARMUP_MS, EXIT_CHECK_MS,
     TEMPERATURE_CACHE_MS, ALERT_COOLDOWN_MS, SPARK_SAMPLES, SPARKLINE_WIDTH,
-    SPARKLINE_HEIGHT, MAX_DISPLAYED_CORES, CORES_PER_ROW, MAX_FREQUENCY_CORES,
+    SPARKLINE_HEIGHT,
     MAX_TEMPERATURES, MAX_FILESYSTEMS, MAX_GPU_CARDS, MIN_PID, ENUMERATE_BATCH,
-    FALLBACK_PROCESS_ICON, PSI_RESOURCES, BATTERY_STATUS_TEXT} from './ui/constants.js';
+    FALLBACK_PROCESS_ICON, PSI_RESOURCES, BATTERY_STATUS_TEXT, percentOf} from './ui/constants.js';
 
 const SHELL_MAJOR = Number.parseInt(String(Config.PACKAGE_VERSION ?? ''), 10) || 0;
 // wrap arrived on StBoxLayout with newer shells; sliced rows stay for older ones.
@@ -47,20 +47,6 @@ const REAL_FILESYSTEMS = new Set(['ext2', 'ext3', 'ext4', 'btrfs', 'xfs', 'f2fs'
 
 const decodeMountPath = path => path.replace(/\\([0-7]{3})/g, (_match, octal) =>
     String.fromCharCode(parseInt(octal, 8)));
-
-const percentOf = (used, total) => total > 0
-    ? Math.max(0, Math.min(100, 100 * used / total)) : 0;
-
-function parsePanelItems(raw) {
-    const allowed = new Set(['cpu', 'temp', 'ram']);
-    const items = [];
-    for (const item of String(raw ?? '').split(',')) {
-        const key = item.trim();
-        if (allowed.has(key) && !items.includes(key))
-            items.push(key);
-    }
-    return items;
-}
 
 const uidFromStatus = statusText => {
     const match = statusText?.match(/^Uid:\s+(\d+)/m);
@@ -439,7 +425,7 @@ class ProcMonIndicator extends PanelMenu.Button {
             if (this.menu.isOpen)
                 this._renderSummaryCards();
         } catch (error) {
-            // swallow cancellation / transient read failures
+            console.warn(`procmon: panel sample failed: ${error}`);
         } finally {
             this._panelBusy = false;
         }
@@ -483,8 +469,6 @@ class ProcMonIndicator extends PanelMenu.Button {
             return;
         const notif = new MessageTray.Notification(this._alertSource(),
             _('ProcMon'), message);
-        notif.setResident(true);
-        notif.setTransient(false);
         notif.addAction(_('Details'), () => {
             const entry = this._alertState.get(kind);
             if (entry)
@@ -492,7 +476,14 @@ class ProcMonIndicator extends PanelMenu.Button {
             this.menu.open();
         });
         this._alertState.set(kind, {level, at: now, acked: false});
-        this._alertSource().showNotification(notif);
+        const source = this._alertSource();
+        // the Source API changed across GNOME versions; pick what exists
+        if (typeof source.showNotification === 'function')
+            source.showNotification(notif);
+        else if (typeof source.notify === 'function')
+            source.notify(notif);
+        else
+            Main.notify('ProcMon', message);
     }
 
     // opening the menu counts as engagement: stop repeating what was seen
@@ -841,7 +832,7 @@ class ProcMonIndicator extends PanelMenu.Button {
                 });
             }
         } catch (error) {
-            // swallow cancellation / transient read failures
+            console.warn(`procmon: sampleMenuData failed: ${error}`);
         } finally {
             this._menuBusy = false;
         }

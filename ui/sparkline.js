@@ -1,7 +1,8 @@
+import Cairo from 'gi://cairo';
 import St from 'gi://St';
 import Gettext from 'gettext';
 import {assessKillProcess, averageFrequencyGhz, collectFans, collectTemperatures, collectVoltages, computeCoreShares, computeCpuShares, computeDiskRates, computeNetRates, formatBytes, formatDuration, formatRate, groupProcesses, isFiniteRect, isPointInsideRect, ownedProcessEntries, parseBatteryDetails, parseCoreTicks, parseCpuTicks, parseDiskStats, parseGpuCard, parseLoadAvg, parseMemInfo, parseNetDev, parsePsi, parseStatLine, parseUptime} from '../lib/proc.js';
-import { FIRST_SAMPLE_MS, IO_WARMUP_MS, EXIT_CHECK_MS, TEMPERATURE_CACHE_MS, ALERT_COOLDOWN_MS, SPARK_SAMPLES, SPARKLINE_WIDTH, SPARKLINE_HEIGHT, iso, _, _n, MAX_TEMPERATURES, MAX_FILESYSTEMS, PSI_RESOURCES, FALLBACK_PROCESS_ICON } from './constants.js';
+import { FIRST_SAMPLE_MS, IO_WARMUP_MS, EXIT_CHECK_MS, TEMPERATURE_CACHE_MS, ALERT_COOLDOWN_MS, SPARK_SAMPLES, SPARKLINE_WIDTH, SPARKLINE_HEIGHT, iso, _, _n, MAX_TEMPERATURES, MAX_FILESYSTEMS, PSI_RESOURCES, FALLBACK_PROCESS_ICON, percentOf } from './constants.js';
 
 
 export function addSparkline(ind, content) {
@@ -62,7 +63,7 @@ function sparkGeometry(width, height, inset, count) {
     }
 
 function drawSparkFill(cr, start, bottom, span, count, points, toY, red, green, blue, height, inset) {
-        const gradient = cr.createLinearGradient(0, inset, 0, height - inset);
+        const gradient = new Cairo.LinearGradient(0, inset, 0, height - inset);
         gradient.addColorStopRGBA(0, red, green, blue, 0.25);
         gradient.addColorStopRGBA(1, red, green, blue, 0.02);
         cr.setSource(gradient);

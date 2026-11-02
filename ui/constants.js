@@ -30,3 +30,16 @@ export const BATTERY_STATUS_TEXT = new Map([
     ['Discharging', () => _('Discharging')],
     ['Full', () => _('Fully charged')],
 ]);
+
+export const percentOf = (used, total) => total > 0 ? Math.max(0, Math.min(100, 100 * used / total)) : 0;
+
+export function parsePanelItems(raw) {
+    const allowed = new Set(['cpu', 'temp', 'ram']);
+    const items = [];
+    for (const item of String(raw ?? '').split(',')) {
+        const key = item.trim();
+        if (allowed.has(key) && !items.includes(key))
+            items.push(key);
+    }
+    return items;
+}
