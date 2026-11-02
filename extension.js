@@ -284,8 +284,7 @@ class ProcMonIndicator extends PanelMenu.Button {
         this._ioCurrent = null;
         this._ioRates = null;
         this._iconCache = new Map();
-        this._coreCells = null;
-        this._cpuHistory = [];
+                this._cpuHistory = [];
         this._ramHistory = [];
         this._sparkArea = null;
         this._lastAlertAt = new Map();
@@ -1001,8 +1000,7 @@ class ProcMonIndicator extends PanelMenu.Button {
             style_class: 'procmon-content',
         });
         this._ui = {};
-        this._coreCells = null;
-        this._sparkArea = null;
+                this._sparkArea = null;
 
         this._addHeader(content);
         if (this._settings.get_boolean('show-sparkline'))
@@ -1021,8 +1019,6 @@ class ProcMonIndicator extends PanelMenu.Button {
         const groups = {};
 
         // signature view first: always visible, no collapse
-        if (wants('cpu'))
-            this._addCoresBlock(content);
 
         if (wantsProc)
             groups.procs = this._addGroup(content, _('Top processes'),
@@ -1044,6 +1040,10 @@ class ProcMonIndicator extends PanelMenu.Button {
         if (wants('gpu'))
             groups.graphics = this._addGroup(content, _('Graphics'),
                 {id: 'graphics', icon: 'video-display-symbolic'});
+
+        // startup control is a first-class citizen, not a settings section
+        groups.startup = this._addGroup(content, _('Startup'),
+            {id: 'startup', icon: 'emblem-system-symbolic'});
 
         if (wants('psi'))
             groups.psi = this._addGroup(content, _('Pressure'),
@@ -1077,6 +1077,7 @@ class ProcMonIndicator extends PanelMenu.Button {
         if (groups.graphics)
             this._ui.graphics = this._addSection(groups.graphics.box, _('GPU'),
                 _('No GPU sensors'), {id: 'graphics', level: 2});
+        this._addStartupSection(groups.startup.box);
         if (groups.psi)
             this._ui.psi = this._addPsiSection(groups.psi.box);
     }
@@ -1398,6 +1399,202 @@ class ProcMonIndicator extends PanelMenu.Button {
         }
     }
 
+    // ----- startup apps & user services ---------------------------------
+
+    _autostartDirs() {
+        return [
+            [`${GLib.get_home_dir()}/.config/autostart`, 'user'],
+            ['/etc/xdg/autostart', 'system'],
+        ];
+    }
+
+    _readAutostartEntries() {
+        const entries = [];
+        const seen = new Set();
+        for (const [dir, origin] of this._autostartDirs()) {
+            const file = Gio.File.new_for_path(dir);
+            if (!file.query_exists(null))
+                continue;
+            let en;
+            try {
+                en = file.enumerate_children('standard::name',
+                    Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, null);
+            } catch (error) {
+                continue;
+            }
+            let info;
+            while ((info = en.next_file(null))) {
+                const name = info.get_name();
+                if (!name.endsWith('.desktop') || seen.has(name))
+                    continue;
+                seen.add(name); // a user override shadows the system entry
+                const path = `${dir}/${name}`;
+                const [ok, text] = GLib.file_get_contents(path);
+                if (!ok)
+                    continue;
+                const str = new TextDecoder().decode(text);
+                const m = /^Name=(.*)$/m.exec(str);
+                const hidden = /^Hidden=true$/m.test(str);
+                entries.push({file: name, name: m ? m[1].trim() : name,
+                    origin, hidden});
+            }
+            en.close(null);
+        }
+        return entries.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    _makeToggleButton(active) {
+        const btn = new St.Button({
+            style_class: 'procmon-toggle',
+            can_focus: true,
+            child: new St.Label({
+                text: active ? _('On') : _('Off'),
+                style_class: 'procmon-toggle-label',
+                y_align: Clutter.ActorAlign.CENTER,
+            }),
+        });
+        this._syncToggleButton(btn, active);
+        return btn;
+    }
+
+    _syncToggleButton(btn, active) {
+        btn.child.text = active ? _('On') : _('Off');
+        btn.remove_style_class_name('procmon-toggle-on');
+        btn.remove_style_class_name('procmon-toggle-off');
+        btn.add_style_class_name(active ? 'procmon-toggle-on' : 'procmon-toggle-off');
+    }
+
+    _makeStartupRow(entry) {
+        const row = new St.BoxLayout({style_class: 'procmon-line', x_expand: true});
+        const name = new St.Label({
+            text: entry.name,
+            style_class: 'procmon-line-name',
+            x_expand: true,
+            y_align: Clutter.ActorAlign.CENTER,
+        });
+        row.add_child(name);
+        const source = new St.Label({
+            text: entry.origin === 'user' ? _('user') : _('system'),
+            style_class: 'procmon-startup-src',
+            y_align: Clutter.ActorAlign.CENTER,
+        });
+        row.add_child(source);
+        const btn = this._makeToggleButton(!entry.hidden);
+        btn.connect('button-press-event', () => {
+            const active = this._toggleAutostart(entry);
+            this._syncToggleButton(btn, active);
+            return Clutter.EVENT_STOP;
+        });
+        row.add_child(btn);
+        return row;
+    }
+
+    _toggleAutostart(entry) {
+        const [userDir] = this._autostartDirs()[0];
+        const userPath = `${userDir}/${entry.file}`;
+        try {
+            if (entry.hidden) {
+                // enable: either clear the user override or unhide the user file
+                if (entry.origin === 'user') {
+                    const [ok, text] = GLib.file_get_contents(userPath);
+                    if (ok)
+                        GLib.file_set_contents(userPath,
+                            new TextDecoder().decode(text)
+                                .replace(/^Hidden=.*$/m, 'Hidden=false'));
+                } else {
+                    const override = Gio.File.new_for_path(userPath);
+                    if (override.query_exists(null))
+                        GLib.file_delete(userPath);
+                }
+            } else {
+                // disable: a same-name user entry with Hidden=true shadows it
+                GLib.mkdir_with_parents(userDir, 0o755);
+                GLib.file_set_contents(userPath, '[Desktop Entry]\nHidden=true\n');
+            }
+            entry.hidden = !entry.hidden;
+        } catch (error) {
+            console.warn(`procmon: autostart toggle: ${error}`);
+        }
+        return !entry.hidden;
+    }
+
+    _runSystemctl(args) {
+        return new Promise(resolve => {
+            try {
+                const proc = Gio.Subprocess.new(
+                    ['systemctl', '--user', ...args, '--no-pager'],
+                    Gio.SubprocessFlags.STDOUT_PIPE |
+                        Gio.SubprocessFlags.STDERR_SILENCE);
+                proc.communicate_utf8_async(null, null, (source, result) => {
+                    try {
+                        const [, stdout] = source.communicate_utf8_finish(result);
+                        resolve(stdout.split('\n').map(l => l.trim()).filter(Boolean));
+                    } catch (error) {
+                        resolve([]);
+                    }
+                });
+            } catch (error) {
+                resolve([]);
+            }
+        });
+    }
+
+    _addStartupSection(box) {
+        const apps = this._addSection(box, _('Autostart apps'), _('No entries'),
+            {id: 'startup-apps', level: 2});
+        const entries = this._readAutostartEntries();
+        for (const entry of entries)
+            apps.box.add_child(this._makeStartupRow(entry));
+        apps.hintLabel.visible = entries.length === 0;
+
+        const services = this._addSection(box, _('User services'), _('Loading…'),
+            {id: 'startup-services', level: 2});
+        void this._fillServices(services);
+    }
+
+    async _fillServices(section) {
+        const lines = await this._runSystemctl(['list-unit-files', '--type=service']);
+        const units = [];
+        for (const line of lines) {
+            const parts = line.split(/\s+/);
+            if (parts.length < 2 || !parts[0].endsWith('.service'))
+                continue;
+            const state = parts[1];
+            if (state === 'static' || state === 'generated')
+                continue;
+            units.push({unit: parts[0], enabled: state === 'enabled'});
+        }
+        units.sort((a, b) => Number(b.enabled) - Number(a.enabled));
+        if (units.length === 0) {
+            section.hintLabel.text = _('No user services');
+            section.hintLabel.visible = true;
+            return;
+        }
+        section.hintLabel.visible = false;
+        for (const unit of units) {
+            const row = new St.BoxLayout({style_class: 'procmon-line', x_expand: true});
+            const name = new St.Label({
+                text: unit.unit,
+                style_class: 'procmon-line-name',
+                x_expand: true,
+                y_align: Clutter.ActorAlign.CENTER,
+            });
+            row.add_child(name);
+            const btn = this._makeToggleButton(unit.enabled);
+            btn.connect('button-press-event', () => {
+                const target = !unit.enabled;
+                void this._runSystemctl([target ? 'enable' : 'disable', unit.unit])
+                    .then(() => {
+                        unit.enabled = target;
+                        this._syncToggleButton(btn, target);
+                    });
+                return Clutter.EVENT_STOP;
+            });
+            row.add_child(btn);
+            section.box.add_child(row);
+        }
+    }
+
     _makeLineRow(box) {
         const row = new St.BoxLayout({style_class: 'procmon-line', x_expand: true});
         const name = new St.Label({
@@ -1508,33 +1705,6 @@ class ProcMonIndicator extends PanelMenu.Button {
         return rows;
     }
 
-    // The per-core heatmap is the signature view: it lives in a permanent,
-    // non-collapsible block right under the summary cards so it can never be
-    // hidden by a closed accordion again.
-    _addCoresBlock(content) {
-        const card = new St.BoxLayout({
-            vertical: true,
-            style_class: 'procmon-cores-block',
-        });
-        card.add_child(new St.Label({
-            text: _('Per-core load'),
-            style_class: 'procmon-cores-title',
-        }));
-        const hint = new St.Label({
-            text: _('Waiting for the first sample…'),
-            style_class: 'procmon-hint',
-        });
-        card.add_child(hint);
-        const box = new St.BoxLayout({
-            vertical: true,
-            style_class: 'procmon-section-body',
-        });
-        card.add_child(box);
-        content.add_child(card);
-        this._ui.cpu = {box, hintLabel: hint};
-        this._ui.frequency = this._makeLineRow(box);
-    }
-
     _addMemorySection(content) {
         const section = this._addSection(content, _('Usage'), _('No data'),
             {id: 'memory-usage', level: 2});
@@ -1577,7 +1747,6 @@ class ProcMonIndicator extends PanelMenu.Button {
         this._renderMeta();
         this._renderSummaryCards();
         this._renderProcessRows();
-        this._renderCoreSection();
         this._renderMemorySection();
         this._renderLineSection(this._ui.temperature, (this._temperatures ?? [])
             .slice(0, MAX_TEMPERATURES), reading => [
@@ -1834,204 +2003,6 @@ class ProcMonIndicator extends PanelMenu.Button {
             this._iconCache.set(key, gicon);
         }
         return this._iconCache.get(key) ?? null;
-    }
-
-    _renderCoreSection() {
-        const section = this._ui.cpu;
-        if (!section)
-            return;
-        const shares = this._menuShares?.cores ?? new Map();
-        // the first sample only establishes a baseline; once any core has a
-        // real share the waiting hint has done its job
-        if (shares.size > 0)
-            section.hintLabel.visible = false;
-        this._syncCoreGrid(shares);
-        this._renderFrequencies();
-    }
-
-    _coreCell(index) {
-        const cell = new St.BoxLayout({
-            vertical: true,
-            style_class: 'procmon-core-cell',
-        });
-        const head = new St.BoxLayout({
-            style_class: 'procmon-core-head',
-            x_expand: true,
-        });
-        const indexLabel = new St.Label({
-            text: iso(index),
-            style_class: 'procmon-core-index',
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        head.add_child(indexLabel);
-        const percent = new St.Label({
-            text: '',
-            style_class: 'procmon-core-percent',
-            x_expand: true,
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        percent.x_align = Clutter.ActorAlign.END;
-        head.add_child(percent);
-        cell.add_child(head);
-        const bar = new St.BoxLayout({
-            style_class: 'procmon-core-bar',
-            x_expand: true,
-        });
-        const fill = new St.Widget({
-            style_class: 'procmon-core-bar-fill',
-            width: 0,
-        });
-        bar.add_child(fill);
-        cell.add_child(bar);
-        return {cell, percent, bar, fill};
-    }
-
-    _buildCoreGrid() {
-        const grid = new St.BoxLayout({
-            vertical: true,
-            style_class: 'procmon-core-grid',
-        });
-        this._coreCells = new Map();
-
-        if (BOX_WRAP_SUPPORTED) {
-            const wrap = new St.BoxLayout({
-                wrap: true,
-                style_class: 'procmon-core-wrap',
-            });
-            for (let i = 0; i < MAX_DISPLAYED_CORES; i++) {
-                const cell = this._coreCell(i);
-                this._coreCells.set(i, cell);
-                wrap.add_child(cell.cell);
-            }
-            grid.add_child(wrap);
-        } else {
-            for (let start = 0; start < MAX_DISPLAYED_CORES; start += CORES_PER_ROW) {
-                const rowBox = new St.BoxLayout({
-                    style_class: 'procmon-core-row',
-                    x_expand: true,
-                });
-                for (let i = start; i < start + CORES_PER_ROW; i++) {
-                    const cell = this._coreCell(i);
-                    this._coreCells.set(i, cell);
-                    cell.cell.x_expand = true;
-                    rowBox.add_child(cell.cell);
-                }
-                grid.add_child(rowBox);
-            }
-        }
-        this._ui.cpu.box.add_child(grid);
-    }
-
-    _syncCoreGrid(shares) {
-        if (!this._coreCells)
-            this._buildCoreGrid();
-        // draw only the cores the machine actually has; filling the grid with
-        // 16 slots on an 8-core box leaves half of it blank
-        const coreCount = this._lastSample?.cores?.size ?? shares.size;
-        for (let i = 0; i < MAX_DISPLAYED_CORES; i++) {
-            const cell = this._coreCells.get(i);
-            const share = shares.get(i);
-            const known = Number.isFinite(share);
-            cell.percent.text = known ? `${iso(Math.round(share))}%` : '';
-            cell.cell.visible = coreCount === 0 || i < coreCount;
-            cell.cell.opacity = known ? 255 : 140;
-            if (known) {
-                const pct = Math.max(0, Math.min(100, share));
-                cell.fill.width = Math.round(64 * pct / 100);
-                cell.fill.remove_style_class_name('procmon-hot');
-                cell.fill.remove_style_class_name('procmon-critical');
-                if (pct >= 80)
-                    cell.fill.add_style_class_name('procmon-critical');
-                else if (pct >= 50)
-                    cell.fill.add_style_class_name('procmon-hot');
-            } else {
-                cell.fill.width = 0;
-            }
-        }
-    }
-
-    _renderFrequencies() {
-        const row = this._ui.frequency;
-        const frequencies = this._sensors?.frequencies ?? [];
-        const shown = frequencies.slice(0, MAX_FREQUENCY_CORES);
-        if (shown.length === 0) {
-            row.row.visible = false;
-            return;
-        }
-        const list = shown.map(khz => (khz / 1e6).toFixed(2)).join(' · ');
-        const average = averageFrequencyGhz(frequencies);
-        const pieces = [_('Frequencies %s').format(iso(`${list} GHz`))];
-        if (average)
-            pieces.push(_('avg %s').format(iso(`${average.toFixed(2)} GHz`)));
-        row.name.text = '';
-        row.value.text = pieces.join(' · ');
-        row.row.visible = true;
-    }
-
-    _renderMemorySection() {
-        const ui = this._ui.memory;
-        if (!ui)
-            return;
-        const memory = this._memory;
-        const mb = size => formatBytes(size * 1024 * 1024);
-        if (!memory) {
-            for (const row of Object.values(ui.rows))
-                row.row.visible = false;
-            ui.section.hintLabel.visible = true;
-            return;
-        }
-        ui.section.hintLabel.visible = false;
-        ui.rows.used.name.text = _('Used %s / %s')
-            .format(iso(mb(memory.usedMb)), iso(mb(memory.totalMb)));
-        ui.rows.available.name.text = _('Available %s').format(iso(mb(memory.availableMb)));
-        ui.rows.cached.name.text = _('Cached %s').format(iso(mb(memory.cachedMb)));
-        ui.rows.buffers.name.text = _('Buffers %s').format(iso(mb(memory.buffersMb)));
-        ui.rows.swap.name.text = memory.swapTotalMb > 0
-            ? _('Swap %s / %s')
-                .format(iso(mb(memory.swapUsedMb)), iso(mb(memory.swapTotalMb)))
-            : _('Swap not in use');
-        for (const row of Object.values(ui.rows))
-            row.row.visible = true;
-    }
-
-    _renderLineSection(section, readings, textFor) {
-        if (!section)
-            return;
-        this._ensureLines(section, readings.length);
-        readings.forEach((reading, index) => {
-            const [name, value] = textFor(reading);
-            section.lines[index].name.text = name;
-            section.lines[index].value.text = value;
-        });
-    }
-
-    _renderBatterySection() {
-        const ui = this._ui.battery;
-        if (!ui)
-            return;
-        const battery = this._battery;
-        if (!battery) {
-            for (const row of Object.values(ui.rows))
-                row.row.visible = false;
-            ui.hintLabel.visible = true;
-            return;
-        }
-        ui.hintLabel.visible = false;
-        const statusText = battery.status
-            ? BATTERY_STATUS_TEXT.get(battery.status)() : null;
-        ui.rows.level.name.text = _('Charge');
-        ui.rows.level.value.text = statusText
-            ? `${iso(battery.percent)}% · ${statusText}`
-            : `${iso(battery.percent)}%`;
-        ui.rows.level.row.visible = true;
-        ui.rows.power.name.text = _('Power now');
-        ui.rows.power.value.text = battery.watts !== null
-            ? `${iso(battery.watts.toFixed(2))} W` : '';
-        ui.rows.power.row.visible = battery.watts !== null;
-        ui.rows.left.name.text = _('Time left');
-        ui.rows.left.value.text = battery.minutesLeft !== null
-            ? iso(formatDuration(battery.minutesLeft * 60) ?? '—') : '';
-        ui.rows.left.row.visible = battery.minutesLeft !== null;
     }
 
     _renderGraphics() {

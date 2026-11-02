@@ -317,69 +317,6 @@
     font-weight: bold;
 }
 
-/* ---- per-core heatmap: real cells, colour by load ---- */
-.procmon-core-grid {
-    spacing: 4px;
-    margin-top: 2px;
-}
-
-.procmon-core-wrap {
-    spacing: 4px;
-}
-
-.procmon-core-row {
-    spacing: 4px;
-}
-
-.procmon-core-cell {
-    min-width: 0px;
-    spacing: 0px;
-    padding: 4px 5px 5px;
-    border-radius: 7px;
-    background-color: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.procmon-core-head {
-    spacing: 4px;
-}
-
-.procmon-core-index {
-    font-size: 9px;
-    opacity: 0.65;
-    font-feature-settings: "tnum";
-    min-width: 10px;
-}
-
-.procmon-core-percent {
-    font-size: 11px;
-    font-weight: bold;
-    font-feature-settings: "tnum";
-    opacity: 1;
-}
-
-.procmon-core-bar {
-    height: 4px;
-    border-radius: 2px;
-    margin-top: 4px;
-    background-color: rgba(255, 255, 255, 0.12);
-}
-
-.procmon-core-bar-fill {
-    height: 4px;
-    border-radius: 2px;
-    background-color: rgba(94, 160, 255, 0.95);
-    transition-duration: 250ms;
-}
-
-.procmon-core-bar-fill.procmon-hot {
-    background-color: rgba(255, 190, 79, 0.95);
-}
-
-.procmon-core-bar-fill.procmon-critical {
-    background-color: rgba(255, 91, 75, 0.98);
-}
-
 /* ---- kill confirmation dialog ---- */
 .procmon-dialog {
     padding: 10px;
@@ -485,19 +422,38 @@
     spacing: 1px;
 }
 
-/* ---- permanent per-core block (never collapsible) ---- */
-.procmon-cores-block {
+/* ---- startup toggles ---- */
+.procmon-toggle {
     border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.045);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    padding: 8px 10px 10px;
-    margin-top: 2px;
+    padding: 2px 8px;
+    min-width: 34px;
 }
 
-.procmon-cores-title {
+.procmon-toggle-label {
     font-size: 10px;
     font-weight: bold;
-    letter-spacing: 0.6px;
-    opacity: 0.6;
-    padding-bottom: 3px;
+}
+
+.procmon-toggle-on {
+    background-color: rgba(46, 194, 126, 0.22);
+}
+
+.procmon-toggle-on .procmon-toggle-label {
+    color: rgba(46, 194, 126, 0.95);
+}
+
+.procmon-toggle-off {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.procmon-toggle-off .procmon-toggle-label {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.procmon-startup-src {
+    font-size: 9px;
+    opacity: 0.55;
+    padding: 0px 5px 1px;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.06);
 }

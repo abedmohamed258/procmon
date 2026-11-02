@@ -17,7 +17,7 @@
       <summary>Rows in each process list</summary>
     </key>
     <key name="panel-items" type="s">
-      <default>'cpu,temp,ram'</default>
+      <default>'cpu,ram'</default>
       <summary>Panel items (comma separated)</summary>
     </key>
     <key name="kill-confirmation" type="b">
