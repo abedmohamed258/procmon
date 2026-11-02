@@ -1,6 +1,24 @@
 /* ProcMon — dense instrument panel. Alpha tints only; adapts to light/dark.
    Scale: 4px rhythm · 11px body · 10px labels · tabular numerals everywhere. */
 
+/* ============================================================
+   Design tokens (St CSS has no variables — documented here)
+   Palette (alpha-only rgba, works on dark AND light themes):
+     CPU accent:    rgba(53, 132, 228, *)   #3584e4  (bars/fills)
+     RAM accent:    rgba(51, 209, 122, *)   #33d17a  (memory)
+     Warn:          rgba(255, 190, 111, *)  #ffbe6f  (bars/percent)
+     Crit bar:      rgba(230, 97, 0, *)     #e66100
+     Crit text:     rgba(224, 27, 36, *)    #e01b24
+     Primary text:  rgba(255, 255, 255, 0.96)
+     Secondary lbl: opacity 0.55–0.6
+     Tertiary:      opacity 0.45
+   Typography:
+     card value 16px bold tnum · row/line value 11px · names 11px
+     card title 9px bold letter-spacing 0.6px opacity 0.55
+     section/sub title 10px letter-spacing 0.6px opacity 0.55
+     group title 11.5px bold
+   ============================================================ */
+
 /* ---- panel indicator ---- */
 .procmon-box {
     spacing: 6px;
@@ -52,7 +70,7 @@
 
 /* ---- sparkline ---- */
 .procmon-sparkline {
-    min-height: 34px;
+    min-height: 40px;
     border-radius: 8px;
     background-color: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.06);
@@ -62,13 +80,13 @@
 
 /* ---- summary cards ---- */
 .procmon-cards {
-    spacing: 4px;
+    spacing: 6px;
 }
 
 .procmon-card {
     min-width: 0;
-    padding: 7px 9px;
-    border-radius: 9px;
+    padding: 9px 10px;
+    border-radius: 10px;
     background-color: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.06);
     spacing: 3px;
@@ -108,26 +126,26 @@
 .procmon-bar-fill-ok {
     height: 3px;
     border-radius: 2px;
-    background-color: rgba(94, 160, 255, 0.85);
+    background-color: rgba(53, 132, 228, 0.9);
     background-gradient-direction: horizontal;
-    background-gradient-start: rgba(94, 160, 255, 0.9);
-    background-gradient-end: rgba(46, 194, 126, 0.9);
+    background-gradient-start: rgba(53, 132, 228, 0.9);
+    background-gradient-end: rgba(51, 209, 122, 0.9);
     transition-duration: 250ms;
 }
 
 .procmon-bar-fill-warn {
-    background-color: rgba(255, 190, 79, 0.9);
+    background-color: rgba(255, 190, 111, 0.9);
     background-gradient-direction: horizontal;
-    background-gradient-start: rgba(255, 206, 96, 0.95);
-    background-gradient-end: rgba(255, 166, 70, 0.9);
+    background-gradient-start: rgba(255, 190, 111, 0.95);
+    background-gradient-end: rgba(255, 190, 111, 0.85);
     transition-duration: 250ms;
 }
 
 .procmon-bar-fill-crit {
-    background-color: rgba(255, 91, 75, 0.95);
+    background-color: rgba(230, 97, 0, 0.95);
     background-gradient-direction: horizontal;
-    background-gradient-start: rgba(255, 110, 90, 0.98);
-    background-gradient-end: rgba(226, 62, 50, 0.95);
+    background-gradient-start: rgba(230, 97, 0, 0.98);
+    background-gradient-end: rgba(224, 27, 36, 0.95);
     transition-duration: 250ms;
 }
 
@@ -160,9 +178,10 @@
 }
 
 .procmon-acc-title {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: bold;
-    letter-spacing: 0.2px;
+    letter-spacing: 0.6px;
+    opacity: 0.55;
 }
 
 .procmon-acc-summary {
@@ -213,12 +232,13 @@
 
 .procmon-line-name {
     font-size: 11px;
-    opacity: 0.75;
+    opacity: 0.6;
 }
 
 .procmon-line-value {
     font-size: 11px;
     font-feature-settings: "tnum";
+    color: rgba(255, 255, 255, 0.96);
 }
 
 /* ---- process rows: fixed columns so numbers never jitter ---- */
@@ -240,16 +260,20 @@
 
 .procmon-row-name {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.82);
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .procmon-row-value {
     font-size: 11px;
     font-weight: bold;
     font-feature-settings: "tnum";
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(255, 255, 255, 0.96);
     min-width: 46px;
     text-align: right;
+}
+
+.procmon-row-value-high {
+    color: rgba(224, 27, 36, 0.96);
 }
 
 .procmon-group-count {
@@ -401,9 +425,10 @@
 }
 
 .procmon-sub-title {
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: bold;
-    opacity: 0.85;
+    letter-spacing: 0.6px;
+    opacity: 0.55;
 }
 
 .procmon-sub-summary {
@@ -435,11 +460,11 @@
 }
 
 .procmon-toggle-on {
-    background-color: rgba(46, 194, 126, 0.22);
+    background-color: rgba(51, 209, 122, 0.22);
 }
 
 .procmon-toggle-on .procmon-toggle-label {
-    color: rgba(46, 194, 126, 0.95);
+    color: rgba(51, 209, 122, 0.95);
 }
 
 .procmon-toggle-off {
@@ -456,4 +481,10 @@
     padding: 0px 5px 1px;
     border-radius: 5px;
     background-color: rgba(255, 255, 255, 0.06);
+}
+.procmon-sparkline-value {
+    font-size: 10px;
+    font-feature-settings: "tnum";
+    opacity: 0.8;
+    margin-bottom: 2px;
 }

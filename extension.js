@@ -25,40 +25,18 @@ import {assessKillProcess, averageFrequencyGhz, collectFans, collectTemperatures
     isFiniteRect, isPointInsideRect, ownedProcessEntries, parseBatteryDetails,
     parseCoreTicks, parseCpuTicks, parseDiskStats, parseGpuCard, parseLoadAvg,
     parseMemInfo, parseNetDev, parsePsi, parseStatLine, parseUptime} from './lib/proc.js';
+import * as sparkline from './ui/sparkline.js';
+import * as cards from './ui/cards.js';
+import * as sections from './ui/sections.js';
+import * as rows from './ui/rows.js';
+import * as startup from './ui/startup.js';
+import * as renderers from './ui/renderers.js';
 
-const _ = Gettext.domain('procmon@abed.dev').gettext;
-const _n = Gettext.domain('procmon@abed.dev').ngettext;
-
-const iso = value => '\u2066' + String(value) + '\u2069';
-
-const FIRST_SAMPLE_MS = 700;
-const IO_WARMUP_MS = 1000;
-const EXIT_CHECK_MS = 2000;
-const TEMPERATURE_CACHE_MS = 5000;
-const ALERT_COOLDOWN_MS = 6 * 60 * 60 * 1000; // at most one reminder per 6h
-const SPARK_SAMPLES = 60;
-const SPARKLINE_WIDTH = 120;
-const SPARKLINE_HEIGHT = 30;
-const MAX_DISPLAYED_CORES = 16;
-const CORES_PER_ROW = 4;
-const MAX_FREQUENCY_CORES = 8;
-const MAX_TEMPERATURES = 8;
-const MAX_FILESYSTEMS = 3;
-const MAX_GPU_CARDS = 4;
-const MIN_PID = 3;
-const ENUMERATE_BATCH = 64;
-const FALLBACK_PROCESS_ICON = 'application-x-executable-symbolic';
-const PSI_RESOURCES = [
-    {resource: 'cpu', title: () => _('CPU')},
-    {resource: 'memory', title: () => _('Memory')},
-    {resource: 'io', title: () => _('I/O')},
-];
-// lib/proc.js stays gettext-free: battery statuses come back as raw keys.
-const BATTERY_STATUS_TEXT = new Map([
-    ['Charging', () => _('Charging')],
-    ['Discharging', () => _('Discharging')],
-    ['Full', () => _('Fully charged')],
-]);
+import {_, _n, iso, FIRST_SAMPLE_MS, IO_WARMUP_MS, EXIT_CHECK_MS,
+    TEMPERATURE_CACHE_MS, ALERT_COOLDOWN_MS, SPARK_SAMPLES, SPARKLINE_WIDTH,
+    SPARKLINE_HEIGHT, MAX_DISPLAYED_CORES, CORES_PER_ROW, MAX_FREQUENCY_CORES,
+    MAX_TEMPERATURES, MAX_FILESYSTEMS, MAX_GPU_CARDS, MIN_PID, ENUMERATE_BATCH,
+    FALLBACK_PROCESS_ICON, PSI_RESOURCES, BATTERY_STATUS_TEXT} from './ui/constants.js';
 
 const SHELL_MAJOR = Number.parseInt(String(Config.PACKAGE_VERSION ?? ''), 10) || 0;
 // wrap arrived on StBoxLayout with newer shells; sliced rows stay for older ones.
@@ -287,6 +265,7 @@ class ProcMonIndicator extends PanelMenu.Button {
                 this._cpuHistory = [];
         this._ramHistory = [];
         this._sparkArea = null;
+        this._sparkValue = null;
         this._lastAlertAt = new Map();
         this._alertState = new Map();
         this._openSections = new Set(['processes', 'memory', 'memory-usage', 'top-cpu']);
@@ -449,6 +428,9 @@ class ProcMonIndicator extends PanelMenu.Button {
                 this._lastCpuTicks = ticks;
             this._memory = parseMemInfo(memText) ?? this._memory;
 
+            if (this._sparkValue)
+                this._sparkValue.text = `${iso(Math.round(this._cpuPercent))}% CPU · ${iso(this._memory ? Math.round(percentOf(this._memory.usedMb, this._memory.totalMb)) : 0)}% RAM`;
+
             void this._refreshThermalSensors();
             this._updatePanelLabel();
             this._recordSparkSample();
@@ -468,104 +450,19 @@ class ProcMonIndicator extends PanelMenu.Button {
     }
 
     _updatePanelLabel() {
-        const parts = [];
-        const ramPercent = this._memory
-            ? percentOf(this._memory.usedMb, this._memory.totalMb) : 0;
-        for (const item of parsePanelItems(this._settings.get_string('panel-items'))) {
-            if (item === 'cpu')
-                parts.push(`${_('CPU')} ${iso(Math.round(this._cpuPercent))}%`);
-            if (item === 'ram')
-                parts.push(`${_('RAM')} ${iso(Math.round(ramPercent))}%`);
-            if (item === 'temp') {
-                const celsius = this._panelTemperature();
-                if (celsius !== null)
-                    parts.push(`${iso(Math.round(celsius))}°C`);
-            }
-        }
-        this._label.text = parts.join(' · ');
+        return renderers.updatePanelLabel(this);
     }
-
-    // ----- sparkline + threshold alerts ------------------------------------
 
     _recordSparkSample() {
-        if (!this._settings.get_boolean('show-sparkline'))
-            return;
-        if (Number.isFinite(this._cpuPercent)) {
-            this._cpuHistory.push(Math.min(100, Math.max(0, this._cpuPercent)));
-            if (this._cpuHistory.length > SPARK_SAMPLES)
-                this._cpuHistory.shift();
-        }
-
-        const memory = this._memory;
-        const ramPercent = memory && memory.totalMb > 0
-            ? percentOf(memory.usedMb, memory.totalMb) : null;
-        if (ramPercent !== null) {
-            this._ramHistory.push(Math.min(100, Math.max(0, ramPercent)));
-            if (this._ramHistory.length > SPARK_SAMPLES)
-                this._ramHistory.shift();
-        }
-
-        // repaint only pays off while the menu is visible
-        if (this.menu.isOpen && this._sparkArea)
-            this._sparkArea.queue_repaint();
+        return sparkline.recordSparkSample(this);
     }
-
-    // St.DrawingArea in GNOME 46 passes NO cairo context through the repaint
-    // signal; the handler fetches its own context and must dispose it after.
     _paintSparkline(area) {
-        const allocation = area?.allocation;
-        if (!allocation)
-            return;
-        const width = allocation.x2 - allocation.x1;
-        const height = allocation.y2 - allocation.y1;
-        if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0)
-            return;
-        const cr = area.get_context();
-        // inset inside the styled padding so the curve stays off the rounded rim
-        const inset = 6;
-        this._drawSparkSeries(cr, width, height, inset, this._cpuHistory,
-            94 / 255, 160 / 255, 255 / 255, 0.9);
-        this._drawSparkSeries(cr, width, height, inset, this._ramHistory,
-            46 / 255, 194 / 255, 126 / 255, 0.8);
-        cr.$dispose();
+        return sparkline.paintSparkline(this, area);
     }
 
     _drawSparkSeries(cr, width, height, inset, history, red, green, blue, lineAlpha) {
-        const points = history.slice(-SPARK_SAMPLES);
-        const count = points.length;
-        if (count < 2)
-            return;
-
-        const usableWidth = width - 2 * inset;
-        const usableHeight = height - 2 * inset;
-        const bottom = height - inset;
-        // newest sample sits at the right edge even before the buffer fills
-        const span = usableWidth / (SPARK_SAMPLES - 1);
-        const start = inset + (SPARK_SAMPLES - count) * span;
-        const toY = value => bottom - Math.min(100, Math.max(0, value)) / 100 * usableHeight;
-
-        cr.setSourceRGBA(red, green, blue, 0.15);
-        cr.moveTo(start, bottom);
-        points.forEach((value, index) =>
-            cr.lineTo(start + index * span, toY(value)));
-        cr.lineTo(start + (count - 1) * span, bottom);
-        cr.closePath();
-        cr.fill();
-
-        cr.setSourceRGBA(red, green, blue, lineAlpha);
-        cr.setLineWidth(1.5);
-        cr.moveTo(start, toY(points[0]));
-        for (let index = 1; index < count; index++)
-            cr.lineTo(start + index * span, toY(points[index]));
-        cr.stroke();
+        return sparkline.drawSparkSeries(this, cr, width, height, inset, history, red, green, blue, lineAlpha);
     }
-
-    // Smart notifications. Rules:
-    //  - notify only on the rising edge of a level (94 → 97 → 99);
-    //  - a reminder at most once per ALERT_COOLDOWN_MS while ignored;
-    //  - "Details" or simply opening the menu = the user knows: silence
-    //    until the condition clears, which re-arms the alert;
-    //  - escalation always breaks the silence (it is new information).
     _alertSource() {
         if (!this._alertSource) {
             this._alertSource = new MessageTray.Source(_('ProcMon'),
@@ -1001,6 +898,7 @@ class ProcMonIndicator extends PanelMenu.Button {
         });
         this._ui = {};
                 this._sparkArea = null;
+                this._sparkValue = null;
 
         this._addHeader(content);
         if (this._settings.get_boolean('show-sparkline'))
@@ -1014,296 +912,34 @@ class ProcMonIndicator extends PanelMenu.Button {
 
     // setting-driven tree: permanent heatmap, then collapsible groups
     _addOptionalSections(content) {
-        const wants = id => this._wantsSection(id);
-        const wantsProc = wants('processes');
-        const groups = {};
-
-        // signature view first: always visible, no collapse
-
-        if (wantsProc)
-            groups.procs = this._addGroup(content, _('Top processes'),
-                {id: 'processes', icon: 'view-list-symbolic'});
-        if (wants('memory'))
-            groups.memory = this._addGroup(content, _('Memory'),
-                {id: 'memory', icon: 'media-flash-symbolic'});
-
-        const wantsSensors = wants('temperatures') || wants('fans') ||
-            wants('voltages') || wants('battery');
-        if (wantsSensors)
-            groups.sensors = this._addGroup(content, _('Sensors'),
-                {id: 'sensors', icon: 'temperature-symbolic'});
-
-        if (wants('disk') || wants('network'))
-            groups.storage = this._addGroup(content, _('Storage & network'),
-                {id: 'storage', icon: 'drive-harddisk-symbolic'});
-
-        if (wants('gpu'))
-            groups.graphics = this._addGroup(content, _('Graphics'),
-                {id: 'graphics', icon: 'video-display-symbolic'});
-
-        // startup control is a first-class citizen, not a settings section
-        groups.startup = this._addGroup(content, _('Startup'),
-            {id: 'startup', icon: 'emblem-system-symbolic'});
-
-        if (wants('psi'))
-            groups.psi = this._addGroup(content, _('Pressure'),
-                {id: 'psi', icon: 'speedometer-symbolic'});
-
-        if (groups.procs)
-            this._addTopCpuSection(groups.procs.box);
-        if (groups.procs)
-            this._addTopMemSection(groups.procs.box);
-        if (groups.memory)
-            this._addMemorySection(groups.memory.box);
-
-        if (groups.sensors) {
-            this._ui.temperature = this._addSection(groups.sensors.box, _('Temperature'),
-                _('No temperature sensors'), {id: 'temperatures', level: 2});
-            this._ui.fans = this._addSection(groups.sensors.box, _('Fans'),
-                _('No fan sensors'), {id: 'fans', level: 2});
-            this._ui.voltages = this._addSection(groups.sensors.box, _('Voltage'),
-                _('No voltage sensors'), {id: 'voltages', level: 2});
-            if (wants('battery'))
-                this._ui.battery = this._addBatterySection(groups.sensors.box);
-        }
-
-        if (groups.storage && wants('network'))
-            this._ui.network = this._addSection(groups.storage.box, _('Network'),
-                _('No network interfaces'), {id: 'network', level: 2});
-        if (groups.storage && wants('disk'))
-            this._ui.filesystems = this._addSection(groups.storage.box, _('Disk usage'),
-                _('No filesystems'), {id: 'disk', level: 2});
-
-        if (groups.graphics)
-            this._ui.graphics = this._addSection(groups.graphics.box, _('GPU'),
-                _('No GPU sensors'), {id: 'graphics', level: 2});
-        this._addStartupSection(groups.startup.box);
-        if (groups.psi)
-            this._ui.psi = this._addPsiSection(groups.psi.box);
+        return sections.addOptionalSections(this, content);
     }
-
-    // wraps the assembled content in the scroll item plus the static actions
     _mountContent(content) {
-        const scroll = new St.ScrollView({
-            style_class: 'procmon-scroll',
-            hscrollbar_policy: St.PolicyType.NEVER,
-            vscrollbar_policy: St.PolicyType.AUTOMATIC,
-            x_expand: true,
-        });
-        scroll.set_child(content);
-        const item = new PopupMenu.PopupBaseMenuItem({
-            reactive: false,
-            can_focus: false,
-            style_class: 'procmon-scroll-item',
-        });
-        item.add_child(scroll);
-        this.menu.addMenuItem(item);
-
-        const footerItem = new PopupMenu.PopupBaseMenuItem({
-            reactive: false,
-            can_focus: false,
-            style_class: 'procmon-scroll-item',
-        });
-        const footer = new St.BoxLayout({style_class: 'procmon-footer'});
-        const openBtn = new St.Button({
-            style_class: 'procmon-footer-btn',
-            can_focus: true,
-            x_expand: true,
-        });
-        const openRow = new St.BoxLayout({vertical: false});
-        openRow.add_child(new St.Icon({
-            icon_name: 'utilities-system-monitor-symbolic',
-            style_class: 'procmon-footer-icon',
-            y_align: Clutter.ActorAlign.CENTER,
-        }));
-        openRow.add_child(new St.Label({
-            text: _('Open System Monitor'),
-            style_class: 'procmon-footer-label',
-            y_align: Clutter.ActorAlign.CENTER,
-        }));
-        openBtn.set_child(openRow);
-        openBtn.connect('clicked', () => {
-            this.menu.close();
-            this._openSystemMonitor();
-        });
-        footer.add_child(openBtn);
-
-        const refreshBtn = new St.Button({
-            style_class: 'procmon-footer-btn',
-            can_focus: true,
-            x_expand: true,
-        });
-        const refreshRow = new St.BoxLayout({vertical: false});
-        refreshRow.add_child(new St.Icon({
-            icon_name: 'view-refresh-symbolic',
-            style_class: 'procmon-footer-icon',
-            y_align: Clutter.ActorAlign.CENTER,
-        }));
-        refreshRow.add_child(new St.Label({
-            text: _('Refresh'),
-            style_class: 'procmon-footer-label',
-            y_align: Clutter.ActorAlign.CENTER,
-        }));
-        refreshBtn.set_child(refreshRow);
-        // same rule as the section headers: consume the press so the popup
-        // does not close, then refresh on idle
-        refreshBtn.connect('button-press-event', () => {
-            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-                if (!this._destroyed)
-                    void this._sampleMenuData();
-                return GLib.SOURCE_REMOVE;
-            });
-            return Clutter.EVENT_STOP;
-        });
-        footer.add_child(refreshBtn);
-
-        footerItem.add_child(footer);
-        this.menu.addMenuItem(footerItem);
+        return sections.mountContent(this, content);
     }
 
     _addHeader(content) {
-        const header = new St.BoxLayout({style_class: 'procmon-header'});
-        header.add_child(new St.Label({
-            text: _('ProcMon'),
-            style_class: 'procmon-title',
-            y_align: Clutter.ActorAlign.CENTER,
-        }));
-        header.add_child(new St.Widget({x_expand: true}));
-        content.add_child(header);
-
-        this._ui.meta = new St.Label({
-            text: '',
-            style_class: 'procmon-meta',
-        });
-        content.add_child(this._ui.meta);
+        return sections.addHeader(this, content);
     }
 
     _addSparkline(content) {
-        const area = new St.DrawingArea({
-            style_class: 'procmon-sparkline',
-            width: SPARKLINE_WIDTH,
-            height: SPARKLINE_HEIGHT,
-        });
-        area.connect('repaint', area => this._paintSparkline(area));
-        this._sparkArea = area;
-        content.add_child(area);
+        return sparkline.addSparkline(this, content);
     }
 
     _addCard(cardsRow, titleText, valueClass) {
-        const card = new St.BoxLayout({
-            vertical: true,
-            style_class: 'procmon-card',
-            x_expand: true,
-        });
-        card.add_child(new St.Label({text: titleText, style_class: 'procmon-card-title'}));
-        const value = new St.Label({
-            text: '—',
-            style_class: valueClass,
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        card.add_child(value);
-        const barBox = new St.BoxLayout({style_class: 'procmon-bar'});
-        const fill = new St.Widget({style_class: 'procmon-bar-fill procmon-bar-fill-ok'});
-        fill.style = 'width: 0px;';
-        barBox.add_child(fill);
-        card.add_child(barBox);
-        cardsRow.add_child(card);
-        return {card, value, fill, barBox};
+        return cards.addCard(this, cardsRow, titleText, valueClass);
     }
 
     _addSummaryCards(content) {
-        const cardsRow = new St.BoxLayout({style_class: 'procmon-cards', x_expand: true});
-        this._ui.cards = {
-            cpu: this._addCard(cardsRow, _('Processor'), 'procmon-card-value'),
-            mem: this._addCard(cardsRow, _('Memory'), 'procmon-card-value'),
-            third: null,
-            thirdKind: 'disk',
-        };
-        this._ensureThirdCard(cardsRow);
-        content.add_child(cardsRow);
-        this._ui.cardsRow = cardsRow;
+        return cards.addSummaryCards(this, content);
     }
 
     _ensureThirdCard(cardsRow) {
-        const kind = (this._sensors?.gpus?.length ?? 0) > 0 ? 'gpu' : 'disk';
-        if (this._ui.cards.third && this._ui.cards.thirdKind === kind)
-            return;
-        if (this._ui.cards.third)
-            this._ui.cards.third.card.destroy();
-        this._ui.cards.third = kind === 'gpu'
-            ? this._addCard(cardsRow, _('Graphics'), 'procmon-card-value procmon-value-compact')
-            : this._addCard(cardsRow, _('Disk'), 'procmon-card-value procmon-value-compact');
-        this._ui.cards.thirdKind = kind;
+        return cards.ensureThirdCard(this, cardsRow);
     }
 
     _addSection(content, titleText, hint, options = {}) {
-        const id = options.id ?? titleText;
-        const level = options.level ?? 1;
-        const open = this._openSections.has(id);
-        const sub = level === 2;
-
-        const card = new St.BoxLayout({
-            vertical: true,
-            style_class: sub ? 'procmon-sub-card' : 'procmon-acc-card',
-        });
-
-        const headerRow = new St.BoxLayout({
-            style_class: sub ? 'procmon-sub-header' : 'procmon-acc-header',
-        });
-        const title = new St.Label({
-            text: titleText,
-            style_class: sub ? 'procmon-sub-title' : 'procmon-acc-title',
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        const summary = new St.Label({
-            text: '',
-            style_class: sub ? 'procmon-sub-summary' : 'procmon-acc-summary',
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        const chevron = new St.Label({
-            text: open ? '▾' : '▸',
-            style_class: sub ? 'procmon-sub-chevron' : 'procmon-acc-chevron',
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        headerRow.add_child(title);
-        headerRow.add_child(new St.Widget({x_expand: true}));
-        headerRow.add_child(summary);
-        headerRow.add_child(chevron);
-
-        const header = new St.Button({
-            style_class: sub ? 'procmon-sub-header-btn' : 'procmon-acc-header-btn',
-            can_focus: true,
-            child: headerRow,
-        });
-        card.add_child(header);
-
-        const box = new St.BoxLayout({
-            vertical: true,
-            style_class: sub ? 'procmon-sub-body' : 'procmon-acc-body',
-        });
-        const hintLabel = new St.Label({text: hint, style_class: 'procmon-hint'});
-        box.add_child(hintLabel);
-        if (!open)
-            box.visible = false;
-        card.add_child(box);
-
-        const section = {
-            id, box, lines: [], hintLabel, summary, open,
-            header, chevron,
-        };
-        // A plain 'clicked' inside a non-reactive menu item bubbles to the
-        // popup and closes it, which looked like the section vanishing.
-        // Consume the press like the kill button does, then toggle on idle.
-        header.connect('button-press-event', () => {
-            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-                if (!this._destroyed)
-                    this._toggleSection(section);
-                return GLib.SOURCE_REMOVE;
-            });
-            return Clutter.EVENT_STOP;
-        });
-        content.add_child(card);
-        return section;
+        return sections.addSection(this, content, titleText, hint, options = {});
     }
 
     _setSectionSummary(section, text) {
@@ -1312,309 +948,56 @@ class ProcMonIndicator extends PanelMenu.Button {
     }
 
     _toggleSection(section) {
-        const open = !section.open;
-        section.open = open;
-        section.chevron.text = open ? '▾' : '▸';
-        if (open) {
-            section.box.visible = true;
-            section.box.opacity = 255;
-            this._openSections.add(section.id);
-            // fill the newly revealed body at once instead of showing a
-            // half-painted section that only catches up on the next tick
-            this._renderValues();
-        } else {
-            section.box.visible = false;
-            this._openSections.delete(section.id);
-        }
+        return sections.toggleSection(this, section);
     }
 
-    // ----- grouped navigation (level 1) -----------------------------------
-    // A group is a collapsible container; the sections inside keep their own
-    // headers and behaviour, so the renderers stay untouched.
-
     _addGroup(content, title, options = {}) {
-        const id = options.id ?? title;
-        const open = this._openSections.has(id);
-
-        const card = new St.BoxLayout({vertical: true, style_class: 'procmon-group'});
-        const headerRow = new St.BoxLayout({style_class: 'procmon-group-header'});
-        if (options.icon)
-            headerRow.add_child(new St.Icon({
-                icon_name: options.icon,
-                style_class: 'procmon-group-icon',
-                y_align: Clutter.ActorAlign.CENTER,
-            }));
-        headerRow.add_child(new St.Label({
-            text: title,
-            style_class: 'procmon-group-title',
-            x_expand: true,
-            y_align: Clutter.ActorAlign.CENTER,
-        }));
-        const summary = new St.Label({
-            text: '',
-            style_class: 'procmon-group-summary',
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        headerRow.add_child(summary);
-        const chevron = new St.Label({
-            text: open ? '▾' : '▸',
-            style_class: 'procmon-group-chevron',
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        headerRow.add_child(chevron);
-
-        const header = new St.Button({
-            style_class: 'procmon-group-header-btn',
-            can_focus: true,
-            child: headerRow,
-        });
-        card.add_child(header);
-
-        const box = new St.BoxLayout({vertical: true, style_class: 'procmon-group-body'});
-        box.visible = open;
-        card.add_child(box);
-
-        const group = {id, box, header, summary, chevron, open};
-        header.connect('button-press-event', () => {
-            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-                if (!this._destroyed)
-                    this._toggleGroup(group);
-                return GLib.SOURCE_REMOVE;
-            });
-            return Clutter.EVENT_STOP;
-        });
-        content.add_child(card);
-        return group;
+        return sections.addGroup(this, content, title, options = {});
     }
 
     _toggleGroup(group) {
-        group.open = !group.open;
-        group.chevron.text = group.open ? '▾' : '▸';
-        group.box.visible = group.open;
-        if (group.open) {
-            this._openSections.add(group.id);
-            this._renderValues();
-        } else {
-            this._openSections.delete(group.id);
-        }
+        return sections.toggleGroup(this, group);
     }
 
-    // ----- startup apps & user services ---------------------------------
-
     _autostartDirs() {
-        return [
-            [`${GLib.get_home_dir()}/.config/autostart`, 'user'],
-            ['/etc/xdg/autostart', 'system'],
-        ];
+        return startup.autostartDirs(this);
     }
 
     _readAutostartEntries() {
-        const entries = [];
-        const seen = new Set();
-        for (const [dir, origin] of this._autostartDirs()) {
-            const file = Gio.File.new_for_path(dir);
-            if (!file.query_exists(null))
-                continue;
-            let en;
-            try {
-                en = file.enumerate_children('standard::name',
-                    Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, null);
-            } catch (error) {
-                continue;
-            }
-            let info;
-            while ((info = en.next_file(null))) {
-                const name = info.get_name();
-                if (!name.endsWith('.desktop') || seen.has(name))
-                    continue;
-                seen.add(name); // a user override shadows the system entry
-                const path = `${dir}/${name}`;
-                const [ok, text] = GLib.file_get_contents(path);
-                if (!ok)
-                    continue;
-                const str = new TextDecoder().decode(text);
-                const m = /^Name=(.*)$/m.exec(str);
-                const hidden = /^Hidden=true$/m.test(str);
-                entries.push({file: name, name: m ? m[1].trim() : name,
-                    origin, hidden});
-            }
-            en.close(null);
-        }
-        return entries.sort((a, b) => a.name.localeCompare(b.name));
+        return startup.readAutostartEntries(this);
     }
 
     _makeToggleButton(active) {
-        const btn = new St.Button({
-            style_class: 'procmon-toggle',
-            can_focus: true,
-            child: new St.Label({
-                text: active ? _('On') : _('Off'),
-                style_class: 'procmon-toggle-label',
-                y_align: Clutter.ActorAlign.CENTER,
-            }),
-        });
-        this._syncToggleButton(btn, active);
-        return btn;
+        return startup.makeToggleButton(this, active);
     }
 
     _syncToggleButton(btn, active) {
-        btn.child.text = active ? _('On') : _('Off');
-        btn.remove_style_class_name('procmon-toggle-on');
-        btn.remove_style_class_name('procmon-toggle-off');
-        btn.add_style_class_name(active ? 'procmon-toggle-on' : 'procmon-toggle-off');
+        return startup.syncToggleButton(this, btn, active);
     }
 
     _makeStartupRow(entry) {
-        const row = new St.BoxLayout({style_class: 'procmon-line', x_expand: true});
-        const name = new St.Label({
-            text: entry.name,
-            style_class: 'procmon-line-name',
-            x_expand: true,
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        row.add_child(name);
-        const source = new St.Label({
-            text: entry.origin === 'user' ? _('user') : _('system'),
-            style_class: 'procmon-startup-src',
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        row.add_child(source);
-        const btn = this._makeToggleButton(!entry.hidden);
-        btn.connect('button-press-event', () => {
-            const active = this._toggleAutostart(entry);
-            this._syncToggleButton(btn, active);
-            return Clutter.EVENT_STOP;
-        });
-        row.add_child(btn);
-        return row;
+        return startup.makeStartupRow(this, entry);
     }
 
     _toggleAutostart(entry) {
-        const [userDir] = this._autostartDirs()[0];
-        const userPath = `${userDir}/${entry.file}`;
-        try {
-            if (entry.hidden) {
-                // enable: either clear the user override or unhide the user file
-                if (entry.origin === 'user') {
-                    const [ok, text] = GLib.file_get_contents(userPath);
-                    if (ok)
-                        GLib.file_set_contents(userPath,
-                            new TextDecoder().decode(text)
-                                .replace(/^Hidden=.*$/m, 'Hidden=false'));
-                } else {
-                    const override = Gio.File.new_for_path(userPath);
-                    if (override.query_exists(null))
-                        GLib.file_delete(userPath);
-                }
-            } else {
-                // disable: a same-name user entry with Hidden=true shadows it
-                GLib.mkdir_with_parents(userDir, 0o755);
-                GLib.file_set_contents(userPath, '[Desktop Entry]\nHidden=true\n');
-            }
-            entry.hidden = !entry.hidden;
-        } catch (error) {
-            console.warn(`procmon: autostart toggle: ${error}`);
-        }
-        return !entry.hidden;
+        return startup.toggleAutostart(this, entry);
     }
 
     _runSystemctl(args) {
-        return new Promise(resolve => {
-            try {
-                const proc = Gio.Subprocess.new(
-                    ['systemctl', '--user', ...args, '--no-pager'],
-                    Gio.SubprocessFlags.STDOUT_PIPE |
-                        Gio.SubprocessFlags.STDERR_SILENCE);
-                proc.communicate_utf8_async(null, null, (source, result) => {
-                    try {
-                        const [, stdout] = source.communicate_utf8_finish(result);
-                        resolve(stdout.split('\n').map(l => l.trim()).filter(Boolean));
-                    } catch (error) {
-                        resolve([]);
-                    }
-                });
-            } catch (error) {
-                resolve([]);
-            }
-        });
+        return startup.runSystemctl(this, args);
     }
 
     _addStartupSection(box) {
-        const apps = this._addSection(box, _('Autostart apps'), _('No entries'),
-            {id: 'startup-apps', level: 2});
-        const entries = this._readAutostartEntries();
-        for (const entry of entries)
-            apps.box.add_child(this._makeStartupRow(entry));
-        apps.hintLabel.visible = entries.length === 0;
-
-        const services = this._addSection(box, _('User services'), _('Loading…'),
-            {id: 'startup-services', level: 2});
-        void this._fillServices(services);
+        return startup.addStartupSection(this, box);
     }
 
     async _fillServices(section) {
-        const lines = await this._runSystemctl(['list-unit-files', '--type=service']);
-        const units = [];
-        for (const line of lines) {
-            const parts = line.split(/\s+/);
-            if (parts.length < 2 || !parts[0].endsWith('.service'))
-                continue;
-            const state = parts[1];
-            if (state === 'static' || state === 'generated')
-                continue;
-            units.push({unit: parts[0], enabled: state === 'enabled'});
-        }
-        units.sort((a, b) => Number(b.enabled) - Number(a.enabled));
-        if (units.length === 0) {
-            section.hintLabel.text = _('No user services');
-            section.hintLabel.visible = true;
-            return;
-        }
-        section.hintLabel.visible = false;
-        for (const unit of units) {
-            const row = new St.BoxLayout({style_class: 'procmon-line', x_expand: true});
-            const name = new St.Label({
-                text: unit.unit,
-                style_class: 'procmon-line-name',
-                x_expand: true,
-                y_align: Clutter.ActorAlign.CENTER,
-            });
-            row.add_child(name);
-            const btn = this._makeToggleButton(unit.enabled);
-            btn.connect('button-press-event', () => {
-                const target = !unit.enabled;
-                void this._runSystemctl([target ? 'enable' : 'disable', unit.unit])
-                    .then(() => {
-                        unit.enabled = target;
-                        this._syncToggleButton(btn, target);
-                    });
-                return Clutter.EVENT_STOP;
-            });
-            row.add_child(btn);
-            section.box.add_child(row);
-        }
+        return startup.fillServices(this, section);
     }
 
     _makeLineRow(box) {
-        const row = new St.BoxLayout({style_class: 'procmon-line', x_expand: true});
-        const name = new St.Label({
-            text: '',
-            style_class: 'procmon-line-name',
-            x_expand: true,
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        const value = new St.Label({
-            text: '',
-            style_class: 'procmon-line-value',
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        row.add_child(name);
-        row.add_child(value);
-        box.add_child(row);
-        return {row, name, value};
+        return rows.makeLineRow(this, box);
     }
-
-    // grows or shrinks a line list to `wanted` entries without rebuilding rows
     _ensureLines(section, wanted) {
         while (section.lines.length < wanted)
             section.lines.push(this._makeLineRow(section.box));
@@ -1640,69 +1023,7 @@ class ProcMonIndicator extends PanelMenu.Button {
     }
 
     _makeProcessRows(box) {
-        const rows = [];
-        for (let i = 0; i < this._topRows; i++) {
-            const row = new St.BoxLayout({
-                style_class: 'procmon-row',
-                x_expand: true,
-                can_focus: true,
-            });
-            box.add_child(row);
-
-            const icon = new St.Icon({
-                icon_name: FALLBACK_PROCESS_ICON,
-                style_class: 'procmon-row-icon',
-                y_align: Clutter.ActorAlign.CENTER,
-            });
-            row.add_child(icon);
-            const name = new St.Label({
-                text: '',
-                style_class: 'procmon-row-name',
-                x_expand: true,
-                y_align: Clutter.ActorAlign.CENTER,
-            });
-            row.add_child(name);
-            const count = new St.Label({
-                text: '',
-                style_class: 'procmon-group-count',
-                y_align: Clutter.ActorAlign.CENTER,
-            });
-            row.add_child(count);
-            const value = new St.Label({
-                text: '',
-                style_class: 'procmon-row-value',
-                y_align: Clutter.ActorAlign.CENTER,
-            });
-            value.x_align = Clutter.ActorAlign.END;
-            row.add_child(value);
-            const kill = new St.Button({
-                style_class: 'procmon-kill',
-                can_focus: true,
-                child: new St.Label({
-                    text: '×',
-                    style_class: 'procmon-kill-label',
-                    y_align: Clutter.ActorAlign.CENTER,
-                }),
-            });
-            kill.connect('button-press-event', (actor, event) => {
-                const group = rows[i].entry;
-                const button = event.get_button();
-                if (group) {
-                    const idleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-                        this._timeouts.delete(idleId);
-                        if (this.menu && !this._destroyed)
-                            this._onKillRequest(group, button === 3 ? 'KILL' : 'TERM');
-                        return GLib.SOURCE_REMOVE;
-                    });
-                    this._timeouts.add(idleId);
-                }
-                return Clutter.EVENT_STOP;
-            });
-            row.add_child(kill);
-
-            rows[i] = {row, icon, name, count, value, kill, entry: null};
-        }
-        return rows;
+        return rows.makeProcessRows(this, box);
     }
 
     _addMemorySection(content) {
@@ -1741,130 +1062,19 @@ class ProcMonIndicator extends PanelMenu.Button {
     // ----- in-place painting ----------------------------------------------
 
     _renderValues() {
-        if (!this.menu.isOpen)
-            return;
-        this._ensureThirdCard(this._ui.cardsRow);
-        this._renderMeta();
-        this._renderSummaryCards();
-        this._renderProcessRows();
-        this._renderMemorySection();
-        this._renderLineSection(this._ui.temperature, (this._temperatures ?? [])
-            .slice(0, MAX_TEMPERATURES), reading => [
-            reading.label,
-            `${iso(Math.round(reading.celsius))}°C`,
-        ]);
-        this._renderLineSection(this._ui.fans, this._fans ?? [], reading => [
-            reading.label,
-            `${iso(reading.rpm)} rpm`,
-        ]);
-        this._renderLineSection(this._ui.voltages, this._voltages ?? [], reading => [
-            reading.label === 'battery' ? _('Battery') : reading.label,
-            `${iso(reading.volts.toFixed(2))} V`,
-        ]);
-        this._renderBatterySection();
-        this._renderIo();
-        this._renderLineSection(this._ui.filesystems,
-            (this._fsData ?? []).slice(0, MAX_FILESYSTEMS), filesystem => [
-                filesystem.mountPoint,
-                `(${iso(filesystem.percent)}%) ${iso(formatBytes(filesystem.usedBytes))} / ${
-                    iso(formatBytes(filesystem.totalBytes))}`,
-            ]);
-        this._renderGraphics();
-        this._renderPsi();
-        this._renderSectionSummaries();
+        return renderers.renderValues(this);
     }
 
     _renderMeta() {
-        const sensors = this._sensors ?? {};
-        const parts = [];
-        if (Number.isFinite(sensors.uptime))
-            parts.push(_('Up %s').format(iso(formatDuration(sensors.uptime) ?? '—')));
-        if (sensors.load)
-            parts.push(_('Load %s').format(iso(sensors.load.one.toFixed(2))));
-        const count = this._processes.size;
-        parts.push(_n('%s process', '%s processes', count).format(iso(count)));
-        const coreCount = this._lastSample?.cores?.size ?? 0;
-        if (coreCount > 0)
-            parts.push(_('Cores %s').format(iso(coreCount)));
-        this._ui.meta.text = parts.join(' · ');
+        return renderers.renderMeta(this);
     }
 
     _renderSummaryCards() {
-        const cards = this._ui.cards;
-        cards.cpu.value.text = `${iso(Math.round(this._cpuPercent))}%`;
-        this._setBar(cards.cpu, this._cpuPercent);
-
-        const memory = this._memory;
-        if (memory && memory.totalMb > 0) {
-            const percent = percentOf(memory.usedMb, memory.totalMb);
-            cards.mem.value.text = `${iso(Math.round(percent))}%`;
-            this._setBar(cards.mem, percent);
-        } else {
-            cards.mem.value.text = _('No data');
-            this._setBar(cards.mem, 0);
-        }
-
-        const third = cards.third;
-        if (cards.thirdKind === 'gpu') {
-            const gpu = (this._sensors?.gpus ?? [])[0];
-            if (gpu && gpu.usagePercent !== null) {
-                third.value.text = `${iso(gpu.usagePercent)}%`;
-                this._setBar(third, gpu.usagePercent);
-            } else {
-                third.value.text = '—';
-                this._setBar(third, 0);
-            }
-        } else {
-            const rates = this._ioRates?.disk;
-            third.value.text = rates
-                ? `${_('↓ %s · ↑ %s').format(iso(formatRate(rates.readPerSecond)),
-                    iso(formatRate(rates.writePerSecond)))}`
-                : _('No data');
-        }
+        return renderers.renderSummaryCards(this);
     }
 
     _renderSectionSummaries() {
-        const ui = this._ui;
-        // Processor
-        if (ui.cpu)
-            this._setSectionSummary(ui.cpu, `${iso(Math.round(this._cpuPercent))}%`);
-
-        // Memory
-        const memory = this._memory;
-        if (ui.memory?.section && memory && memory.totalMb > 0) {
-            const usedGb = memory.usedMb / 1024;
-            const totalGb = memory.totalMb / 1024;
-            this._setSectionSummary(ui.memory.section,
-                `${iso(usedGb.toFixed(1))}/${iso(totalGb.toFixed(0))} GB`);
-        }
-
-        // Temperature: hottest sensor
-        const temps = this._temperatures ?? [];
-        if (ui.temperature && temps.length > 0) {
-            const hottest = Math.max(...temps.map(t => t.celsius));
-            this._setSectionSummary(ui.temperature, `${iso(Math.round(hottest))}°C`);
-        }
-
-        // Network: total down/up, computeNetRates() returns [
-        // {name, rxPerSecond, txPerSecond}] sorted by activity
-        const netRates = this._ioRates?.net ?? [];
-        if (ui.network && netRates.length > 0) {
-            const rx = netRates.reduce((sum, rate) => sum + (rate.rxPerSecond ?? 0), 0);
-            const tx = netRates.reduce((sum, rate) => sum + (rate.txPerSecond ?? 0), 0);
-            this._setSectionSummary(ui.network,
-                `${_('↓ %s · ↑ %s').format(iso(formatRate(rx)), iso(formatRate(tx)))}`);
-        } else if (ui.network) {
-            this._setSectionSummary(ui.network, '');
-        }
-
-        // Disk: first fs percent
-        const fs = (this._fsData ?? [])[0];
-        if (ui.filesystems && fs)
-            this._setSectionSummary(ui.filesystems, `${iso(Math.round(fs.percent))}%`);
-
-        const gpu = (this._sensors?.gpus ?? [])[0];
-        if (ui.graphics && gpu && gpu.usagePercent !== null)
-            this._setSectionSummary(ui.graphics, `${iso(gpu.usagePercent)}%`);
+        return renderers.renderSectionSummaries(this);
     }
 
     _setBar(card, percent) {
@@ -1880,172 +1090,36 @@ class ProcMonIndicator extends PanelMenu.Button {
     }
 
     _renderIo() {
-        const cards = this._ui.cards;
-        if (cards.thirdKind === 'disk') {
-            const rates = this._ioRates?.disk;
-            cards.third.value.text = rates
-                ? `${_('↓ %s · ↑ %s').format(iso(formatRate(rates.readPerSecond)),
-                    iso(formatRate(rates.writePerSecond)))}`
-                : _('No data');
-        }
-        const section = this._ui.network;
-        if (!section)
-            return;
-        const interfaces = [...(this._ioCurrent?.net.keys() ?? [])];
-        this._ensureLines(section, interfaces.length);
-        const ratesByName = new Map((this._ioRates?.net ?? [])
-            .map(rate => [rate.name, rate]));
-        interfaces.forEach((name, index) => {
-            const entry = section.lines[index];
-            const rate = ratesByName.get(name);
-            entry.name.text = name;
-            entry.value.text = rate
-                ? `${_('↓ %s · ↑ %s').format(iso(formatRate(rate.rxPerSecond)),
-                    iso(formatRate(rate.txPerSecond)))}`
-                : _('No sample');
-        });
+        return renderers.renderIo(this);
     }
 
     _renderProcessRows() {
-        const rows = this._ui.processRows;
-        if (!rows)
-            return;
-        // while the pointer rests on the menu, rows stay put so clicks land
-        if (this._rowsPopulated && this._pointerInsideMenu())
-            return;
-
-        const shares = this._menuShares;
-        const processes = this._processes ?? new Map();
-        const entries = [...processes.values()]
-            .map(entry => ({...entry, cpu: shares?.cpu.get(entry.pid) ?? 0}));
-        // both lists are cut independently from the full sample; clipping the
-        // cpu list first would drop RAM-heavy groups out of the RAM view
-        const {groups: cpuList} = groupProcesses(entries, this._topRows);
-        const {groups: ramList} = groupProcesses(entries, this._topRows, 'rss');
-
-        this._paintProcessRows(rows.byCpu, cpuList,
-            group => `${iso(group.cpuSum.toFixed(1))}%`, group => group.cpuSum > 50);
-        this._paintProcessRows(rows.byRam, ramList,
-            group => `${iso(Math.round(group.rssKbSum / 1024))} MB`, () => false);
-        if (this._ui.processSection)
-            this._ui.processSection.hintLabel.visible = entries.length === 0;
-        this._rowsPopulated = true;
+        return rows.renderProcessRows(this);
     }
 
     _paintProcessRows(rows, entries, valueFor, highlightFor) {
-        if (entries.length !== rows.length)
-            this._syncRowsVisibility(rows, entries.length);
-        for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-            const group = entries[i];
-            if (!group) {
-                row.row.visible = false;
-                row.entry = null;
-                continue;
-            }
-            row.row.visible = true;
-            // keyed by name+count so a rebuilt pid array never churns the row;
-            // text/icon/value/count repaint in place, no rebuild needed
-            if (row.entry?.name !== group.name || row.entry?.count !== group.count) {
-                row.name.text = group.name;
-                row.kill.accessible_name = _n('Terminate %s (%d process)',
-                    'Terminate %s (%d processes)',
-                    group.count).format(group.name, iso(group.count));
-                this._setRowIcon(row, group);
-            }
-            row.value.text = valueFor(group);
-            row.count.text = group.count > 1 ? `×${iso(group.count)}` : '';
-            // an empty pill is chrome noise: hide the badge entirely for
-            // single-process rows instead of leaving a blank capsule
-            row.count.visible = group.count > 1;
-            row.value.style_class = highlightFor(group)
-                ? 'procmon-row-value procmon-row-value-high'
-                : 'procmon-row-value';
-            row.entry = group;
-        }
+        return rows.paintProcessRows(this, rows, entries, valueFor, highlightFor);
     }
 
     _syncRowsVisibility(rows, expected) {
-        for (let i = 0; i < rows.length; i++) {
-            if (i < expected)
-                continue;
-            rows[i].row.visible = false;
-            rows[i].entry = null;
-        }
+        return rows.syncRowsVisibility(this, rows, expected);
     }
 
     _setRowIcon(row, group) {
-        if (row.icon.forProcessName === group.name)
-            return;
-        row.icon.forProcessName = group.name;
-        // every row keeps an icon slot; an unresolved app icon must not leave
-        // a hole that makes the name look indented differently
-        row.icon.gicon = this._iconForGroup(group) ??
-            Gio.ThemedIcon.new(FALLBACK_PROCESS_ICON);
+        return rows.setRowIcon(this, row, group);
     }
 
     _iconForGroup(group) {
-        const key = group.name;
-        if (!this._iconCache.has(key)) {
-            const appSystem = Shell.AppSystem.get_default();
-            let gicon = null;
-            for (const app of appSystem.get_running()) {
-                if (group.pids.some(pid => app.get_pids().includes(pid))) {
-                    gicon = app.get_app_info()?.get_icon() ?? null;
-                    break;
-                }
-            }
-            if (!gicon) {
-                const app = appSystem.lookup_app(`${key}.desktop`) ??
-                    appSystem.lookup_startup_wmclass(key);
-                gicon = app?.get_app_info()?.get_icon() ?? null;
-            }
-            this._iconCache.set(key, gicon);
-        }
-        return this._iconCache.get(key) ?? null;
+        return rows.iconForGroup(this, group);
     }
 
     _renderGraphics() {
-        const section = this._ui.graphics;
-        if (!section)
-            return;
-        const cards = this._sensors?.gpus ?? [];
-        this._ensureLines(section, cards.length);
-        cards.forEach((card, index) => {
-            const entry = section.lines[index];
-            const pieces = [];
-            if (card.usagePercent !== null)
-                pieces.push(`${iso(card.usagePercent)}%`);
-            if (card.vramTotalBytes > 0 && card.vramUsedBytes !== null) {
-                pieces.push(_('VRAM %s / %s').format(iso(formatBytes(card.vramUsedBytes)),
-                    iso(formatBytes(card.vramTotalBytes))));
-            }
-            entry.name.text = card.vendor;
-            entry.value.text = pieces.join(' · ') || '—';
-        });
+        return renderers.renderGraphics(this);
     }
 
     _renderPsi() {
-        const ui = this._ui.psi;
-        if (!ui)
-            return;
-        const psi = this._sensors?.psi ?? {};
-        ui.hintLabel.visible = PSI_RESOURCES.every(({resource}) => !psi[resource]);
-        PSI_RESOURCES.forEach((info, index) => {
-            const row = ui.rows[index];
-            const value = psi[info.resource];
-            row.row.visible = Boolean(value);
-            if (!value)
-                return;
-            const pieces = [_('some %s').format(iso(value.some.avg10.toFixed(2)))];
-            if (value.full)
-                pieces.push(_('full %s').format(iso(value.full.avg10.toFixed(2))));
-            row.name.text = info.title();
-            row.value.text = pieces.join(' · ');
-        });
+        return renderers.renderPsi(this);
     }
-
-    // ----- pointer gate ---------------------------------------------------
 
     _menuRect() {
         const widget = this.menu.widget;
@@ -2268,6 +1342,17 @@ class ProcMonIndicator extends PanelMenu.Button {
         }
         Main.notify('ProcMon', _('Could not open System Monitor'));
     }
+
+    _renderMemorySection() {
+        return renderers.renderMemorySection(this);
+    }
+    _renderLineSection(section, entries, rowFor) {
+        return renderers.renderLineSection(this, section, entries, rowFor);
+    }
+    _renderBatterySection() {
+        return renderers.renderBatterySection(this);
+    }
+
 
     destroy() {
         this._destroyed = true;
