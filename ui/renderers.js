@@ -1,7 +1,6 @@
-import St from 'gi://St';
-import Gettext from 'gettext';
-import {assessKillProcess, averageFrequencyGhz, collectFans, collectTemperatures, collectVoltages, computeCoreShares, computeCpuShares, computeDiskRates, computeNetRates, formatBytes, formatDuration, formatRate, groupProcesses, isFiniteRect, isPointInsideRect, ownedProcessEntries, parseBatteryDetails, parseCoreTicks, parseCpuTicks, parseDiskStats, parseGpuCard, parseLoadAvg, parseMemInfo, parseNetDev, parsePsi, parseStatLine, parseUptime} from '../lib/proc.js';
-import { FIRST_SAMPLE_MS, IO_WARMUP_MS, EXIT_CHECK_MS, TEMPERATURE_CACHE_MS, ALERT_COOLDOWN_MS, SPARK_SAMPLES, SPARKLINE_WIDTH, iso, _, _n, MAX_TEMPERATURES, MAX_FILESYSTEMS, PSI_RESOURCES, FALLBACK_PROCESS_ICON, percentOf, parsePanelItems } from './constants.js';
+import {formatBytes, formatDuration, formatRate} from '../lib/proc.js';
+import {iso, _, _n, MAX_TEMPERATURES, MAX_FILESYSTEMS, PSI_RESOURCES,
+    percentOf, parsePanelItems, panelLevel} from './constants.js';
 
 
 export function renderValues(ind) {
@@ -220,21 +219,35 @@ export function renderIo(ind) {
     }
 
 export function updatePanelLabel(ind) {
-        const parts = [];
         const ramPercent = ind._memory
             ? percentOf(ind._memory.usedMb, ind._memory.totalMb) : 0;
-        for (const item of parsePanelItems(ind._settings.get_string('panel-items'))) {
-            if (item === 'cpu')
-                parts.push(`${_('CPU')} ${iso(Math.round(ind._cpuPercent))}%`);
-            if (item === 'ram')
-                parts.push(`${_('RAM')} ${iso(Math.round(ramPercent))}%`);
-            if (item === 'temp') {
-                const celsius = ind._panelTemperature();
-                if (celsius !== null)
-                    parts.push(`${iso(Math.round(celsius))}°C`);
-            }
+        const wanted = new Set(parsePanelItems(ind._settings.get_string('panel-items')));
+        const values = {
+            cpu: {text: `${_('CPU')} ${iso(Math.round(ind._cpuPercent))}%`,
+                value: ind._cpuPercent},
+            ram: {text: `${_('RAM')} ${iso(Math.round(ramPercent))}%`,
+                value: ramPercent},
+            temp: null,
+        };
+        const celsius = ind._panelTemperature();
+        if (celsius !== null)
+            values.temp = {text: `${iso(Math.round(celsius))}°C`, value: celsius};
+        // one label per item, coloured by its own attention level, so a hot
+        // RAM readout never paints a calm CPU readout amber
+        for (const item of ['cpu', 'temp', 'ram']) {
+            const label = ind._panelItems?.[item];
+            if (!label)
+                continue;
+            const entry = wanted.has(item) ? values[item] : null;
+            label.visible = Boolean(entry);
+            if (!entry)
+                continue;
+            label.text = entry.text;
+            const level = panelLevel(item, entry.value);
+            label.style_class = level === 'ok'
+                ? 'procmon-label'
+                : `procmon-label procmon-label-${level}`;
         }
-        ind._label.text = parts.join(' · ');
     }
 
     // ----- sparkline + threshold alerts ------------------------------------

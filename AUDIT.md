@@ -33,6 +33,22 @@ Method: code read (all 4,476 lines), `gjs` test run, `journalctl /usr/bin/gnome-
 13. `metadata.json` description lists the v1 feature set (no Startup, no alerts, no PSI/sensors detail).
 14. Arabic po: 109 msgids, 4 untranslated — good, but new strings must keep it that way.
 
+## Round 3 (v2.9.0 — panel colours, diagnostics, import hygiene)
+
+- **Panel per-item labels with attention colours**: each of CPU/temp/RAM is
+  its own label, coloured by a pure tested helper (`panelLevel` in
+  ui/constants.js, warn/crit thresholds, + tests/panel-level.test.js, 11 =
+  total 105 checks). CSS `.procmon-label-warn/-crit` are literal accents,
+  readable on both themes. Replaces the single joined label.
+- **Prefs About + Copy diagnostics**: version row + diagnostics button
+  (clipboard verified empirically; toast feedback), Arabic strings added
+  (140 = 140 parity, zero fuzzy).
+- **Import hygiene** (skill rule): trimmed the copy-pasted mega-imports in
+  ui/rows.js, ui/renderers.js, ui/sections.js, ui/cards.js to the symbols
+  each module actually uses (verified per-symbol by usage count).
+- Evidence-based rejections stand: stat-only process reads (UID needs
+  /status), programmatic menu-open (Eval off by default).
+
 ## Round 2 (v2.8.0 — light theme + i18n coverage + shipping)
 
 Findings:

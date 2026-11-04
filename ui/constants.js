@@ -44,3 +44,19 @@ export function parsePanelItems(raw) {
     }
     return items;
 }
+
+// Panel attention levels (display only — never alert logic): amber means
+// "watch it", red means "it needs you". Thresholds are deliberately stricter
+// than the card bars (warn >=60) so a calm system shows no amber at all.
+export const PANEL_WARN = {cpu: 75, ram: 75, temp: 70};
+export const PANEL_CRIT = {cpu: 90, ram: 90, temp: 85};
+
+export function panelLevel(item, value) {
+    if (!Number.isFinite(value))
+        return 'ok';
+    if (value >= (PANEL_CRIT[item] ?? 90))
+        return 'crit';
+    if (value >= (PANEL_WARN[item] ?? 75))
+        return 'warn';
+    return 'ok';
+}

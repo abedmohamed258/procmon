@@ -1,8 +1,10 @@
 // Preferences dialog. GTK/Adw only — never St or Clutter, so it works inside
 // the standalone prefs process of every supported shell version.
 import Adw from 'gi://Adw';
+import Gdk from 'gi://Gdk';
 import Gettext from 'gettext';
 import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 import Gtk from 'gi://Gtk';
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
@@ -40,6 +42,7 @@ export default class ProcmonPreferences extends ExtensionPreferences {
         this._addAlertsGroup(page, settings);
         this._addSectionsGroup(page, settings);
         this._addSafetyGroup(page, settings);
+        this._addAboutGroup(page, settings, window);
     }
 
     _addGeneralGroup(page, settings) {
@@ -144,6 +147,67 @@ export default class ProcmonPreferences extends ExtensionPreferences {
         });
         settings.bind('kill-confirmation', row, 'active', Gio.SettingsBindFlags.DEFAULT);
         group.add(row);
+    }
+
+    _addAboutGroup(page, settings, window) {
+        const group = new Adw.PreferencesGroup({title: _('About')});
+        page.add(group);
+
+        const versionRow = new Adw.ActionRow({title: _('Version')});
+        versionRow.add_suffix(new Gtk.Label({
+            label: `ProcMon ${this.metadata.version ?? '?'}`,
+            valign: Gtk.Align.CENTER,
+        }));
+        group.add(versionRow);
+
+        const diagRow = new Adw.ActionRow({
+            title: _('Diagnostics'),
+            subtitle: _('Copy settings and machine facts for a bug report'),
+        });
+        const copyBtn = new Gtk.Button({
+            label: _('Copy'),
+            valign: Gtk.Align.CENTER,
+        });
+        copyBtn.connect('clicked', () => {
+            const text = this._diagnosticsText(settings);
+            let ok = false;
+            try {
+                const display = Gdk.Display.get_default();
+                display?.get_clipboard()?.set(text);
+                ok = true;
+            } catch (error) {
+                printerr(`procmon prefs: clipboard: ${error}`);
+            }
+            window.add_toast(Adw.Toast.new(
+                ok ? _('Diagnostics copied') : _('Copy failed')));
+        });
+        diagRow.add_suffix(copyBtn);
+        group.add(diagRow);
+    }
+
+    // Copy-paste support bundle: versions, settings snapshot, machine facts.
+    // Synchronous reads are fine here — this runs on click, not in the shell.
+    _diagnosticsText(settings) {
+        const read = path => {
+            try {
+                const [ok, bytes] = GLib.file_get_contents(path);
+                return ok ? new TextDecoder().decode(bytes) : '';
+            } catch {
+                return '';
+            }
+        };
+        const cpuModel = /model name\s*:\s*(.+)/.exec(
+            read('/proc/cpuinfo'))?.[1]?.trim() ?? 'unknown';
+        const memTotal = /MemTotal:\s*(\d+)/.exec(
+            read('/proc/meminfo'))?.[1] ?? '?';
+        const uptime = (read('/proc/uptime').trim().split(/\s+/)[0]) ?? '?';
+        return [
+            `ProcMon ${this.metadata.version ?? '?'}`,
+            `CPU: ${cpuModel}`,
+            `Cores: ${GLib.get_num_processors()}  RAM: ${memTotal} kB  Uptime: ${uptime}s`,
+            `Settings refresh=${settings.get_int('refresh-interval-ms')}ms menu=${settings.get_int('menu-refresh-ms')}ms top=${settings.get_int('top-count')} panel=${settings.get_string('panel-items')}`,
+            `Alerts temp=${settings.get_uint('temp-alert-c')}C mem=${settings.get_uint('mem-alert-pct')}% disk=${settings.get_uint('disk-alert-pct')}%`,
+        ].join('\n');
     }
 
     _addSpinRow(group, settings, {title, subtitle, key, min, max, step}) {

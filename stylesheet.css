@@ -32,6 +32,15 @@
     margin-left: 4px;
 }
 
+/* panel attention colours: literal accents, readable on light + dark bars */
+.procmon-label-warn {
+    color: rgba(194, 120, 0, 0.95);
+}
+
+.procmon-label-crit {
+    color: rgba(224, 27, 36, 0.95);
+}
+
 .procmon-icon {
     icon-size: 16px;
 }

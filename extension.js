@@ -270,12 +270,17 @@ class ProcMonIndicator extends PanelMenu.Button {
             fallback_icon_name: 'utilities-system-monitor',
             style_class: 'system-status-icon procmon-icon',
         }));
-        this._label = new St.Label({
-            text: '',
-            style_class: 'procmon-label',
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        box.add_child(this._label);
+        this._panelItems = {};
+        for (const item of ['cpu', 'temp', 'ram']) {
+            const label = new St.Label({
+                text: '',
+                style_class: 'procmon-label',
+                y_align: Clutter.ActorAlign.CENTER,
+            });
+            label.visible = false;
+            this._panelItems[item] = label;
+            box.add_child(label);
+        }
         this.add_child(box);
 
         this._settingsSignalId = this._settings.connect('changed', (_client, key) =>
