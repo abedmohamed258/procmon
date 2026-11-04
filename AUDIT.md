@@ -33,6 +33,15 @@ Method: code read (all 4,476 lines), `gjs` test run, `journalctl /usr/bin/gnome-
 13. `metadata.json` description lists the v1 feature set (no Startup, no alerts, no PSI/sensors detail).
 14. Arabic po: 109 msgids, 4 untranslated — good, but new strings must keep it that way.
 
+## Round 5 (v3.1.0 — menu redesign)
+
+- Flattened hierarchy: level-2 subsections dropped their card frames for a
+  hairline divider (first-in-group exempt). One frame per group, always.
+- Sparkline colour legend (CPU/RAM dots). Card titles show trend arrows
+  (▲/▼/● vs previous sample, tested helper stays in renderers).
+- Menu 352→360px, scroll 440→460px. i18n parity held (142=142).
+- 114 gjs checks (design tokens 18).
+
 ## Round 4 (v3.0.0 — visual identity + prefs gear)
 
 - **Brand mark**: `assets/procmon.svg` (blue→green tile, white pulse) as the

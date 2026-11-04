@@ -17,9 +17,10 @@ The visual identity (mark, colour, type, controls) is specified in
 - **Panel indicator** with configurable items (CPU, temperature, RAM). Each
   item is coloured by its own attention level — amber at 75%, red at 90% —
   so a calm readout never paints a hot one amber.
-- **Dashboard menu**: summary cards (CPU / memory / disk-or-GPU), a CPU+RAM
-  history sparkline (blue CPU bars, green RAM bars), and collapsible groups
-  so you see only what you need.
+- **Dashboard menu**: summary cards (CPU / memory / disk-or-GPU) with trend
+  arrows, a CPU+RAM history sparkline with a colour legend (blue CPU bars,
+  green RAM bars), flat subsections separated by rules, and collapsible
+  groups so you see only what you need.
 - **Top processes** grouped by CPU and by RAM, with safe termination: left
   click sends SIGTERM, right click sends SIGKILL, after a confirmation
   dialog. Every kill is re-verified against `/proc/<pid>/stat` starttime to
@@ -63,7 +64,7 @@ Log out and back in (or restart GNOME Shell on X11) the first time.
 ## Development
 
 ```bash
-npm test        # 111 gjs checks: parsing + design tokens + alerts + supervisor + panel levels
+npm test        # 114 gjs checks: parsing + design tokens + alerts + supervisor + panel levels
 npm run check   # node --check on every JS file
 bash scripts/pack.sh      # produces procmon@abed.dev.zip (runtime files only, asserts the manifest)
 bash scripts/compile-schemas.sh

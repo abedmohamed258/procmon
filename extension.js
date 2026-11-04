@@ -231,6 +231,7 @@ class ProcMonIndicator extends PanelMenu.Button {
         this._diskBusy = false;
 
         this._cpuPercent = 0;
+        this._cardPrev = {cpu: null, mem: null}; // trend arrows (delta >= 2)
         this._memory = null;
         this._lastCpuTicks = null;
         this._lastSample = null;

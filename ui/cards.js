@@ -9,7 +9,8 @@ export function addCard(ind, cardsRow, titleText, valueClass) {
             style_class: 'procmon-card',
             x_expand: true,
         });
-        card.add_child(new St.Label({text: titleText, style_class: 'procmon-card-title'}));
+        const title = new St.Label({text: titleText, style_class: 'procmon-card-title'});
+        card.add_child(title);
         const value = new St.Label({
             text: '—',
             style_class: valueClass,
@@ -22,7 +23,7 @@ export function addCard(ind, cardsRow, titleText, valueClass) {
         barBox.add_child(fill);
         card.add_child(barBox);
         cardsRow.add_child(card);
-        return {card, value, fill, barBox};
+        return {card, value, fill, barBox, title, baseTitle: titleText};
     }
 
 export function ensureThirdCard(ind, cardsRow) {

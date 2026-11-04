@@ -18,13 +18,13 @@ msgid_plural "%s processes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: extension.js:1428
+#: extension.js:1429
 msgid "%s process is still running"
 msgid_plural "%s processes are still running"
 msgstr[0] ""
 msgstr[1] ""
 
-#: extension.js:1377
+#: extension.js:1378
 msgid "%s process not signaled"
 msgid_plural "%s processes not signaled"
 msgstr[0] ""
@@ -36,11 +36,11 @@ msgid_plural "Terminate %s (%d processes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: extension.js:1425
+#: extension.js:1426
 msgid "%s is supervised by %s"
 msgstr ""
 
-#: extension.js:1406
+#: extension.js:1407
 msgid "%s restarted — supervised by %s"
 msgstr ""
 
@@ -56,15 +56,15 @@ msgstr ""
 msgid "Autostart apps"
 msgstr ""
 
-#: ui/renderers.js:269
+#: ui/renderers.js:282
 msgid "Available"
 msgstr ""
 
-#: extension.js:1087
+#: extension.js:1088
 msgid "Battery"
 msgstr ""
 
-#: ui/renderers.js:273
+#: ui/renderers.js:286
 msgid "Buffers"
 msgstr ""
 
@@ -80,11 +80,11 @@ msgstr ""
 msgid "CPU usage"
 msgstr ""
 
-#: ui/renderers.js:271
+#: ui/renderers.js:284
 msgid "Cached"
 msgstr ""
 
-#: extension.js:1241
+#: extension.js:1242
 msgid "Cancel"
 msgstr ""
 
@@ -116,23 +116,23 @@ msgstr ""
 msgid "Could not %s %s"
 msgstr ""
 
-#: extension.js:1454
+#: extension.js:1455
 msgid "Could not open System Monitor"
 msgstr ""
 
-#: extension.js:1465
+#: extension.js:1466
 msgid "Could not open preferences"
 msgstr ""
 
-#: extension.js:1413
+#: extension.js:1414
 msgid "Could not stop %s"
 msgstr ""
 
-#: extension.js:1345
+#: extension.js:1346
 msgid "Could not terminate %s"
 msgstr ""
 
-#: extension.js:506
+#: extension.js:507
 msgid "Details"
 msgstr ""
 
@@ -144,7 +144,7 @@ msgstr ""
 msgid "Diagnostics copied"
 msgstr ""
 
-#: extension.js:1424
+#: extension.js:1425
 msgid "Did not terminate"
 msgstr ""
 
@@ -152,11 +152,11 @@ msgstr ""
 msgid "Discharging"
 msgstr ""
 
-#: ui/cards.js:36
+#: ui/cards.js:37
 msgid "Disk"
 msgstr ""
 
-#: extension.js:574
+#: extension.js:575
 msgid "Disk %.0f%% full"
 msgstr ""
 
@@ -176,7 +176,7 @@ msgstr ""
 msgid "Fans"
 msgstr ""
 
-#: extension.js:1244
+#: extension.js:1245
 msgid "Force kill"
 msgstr ""
 
@@ -184,7 +184,7 @@ msgstr ""
 msgid "Fully charged"
 msgstr ""
 
-#: ui/sections.js:344
+#: ui/sections.js:348
 msgid "GPU"
 msgstr ""
 
@@ -212,7 +212,7 @@ msgstr ""
 msgid "I/O"
 msgstr ""
 
-#: ui/renderers.js:303
+#: ui/renderers.js:316
 msgid "Level"
 msgstr ""
 
@@ -224,11 +224,11 @@ msgstr ""
 msgid "Loading…"
 msgstr ""
 
-#: ui/cards.js:44
+#: ui/cards.js:45
 msgid "Memory"
 msgstr ""
 
-#: extension.js:546
+#: extension.js:547
 msgid "Memory %.0f%% — almost full"
 msgstr ""
 
@@ -248,7 +248,7 @@ msgstr ""
 msgid "Menu refresh (ms)"
 msgstr ""
 
-#: ui/sections.js:337
+#: ui/sections.js:341
 msgid "Network"
 msgstr ""
 
@@ -256,15 +256,15 @@ msgstr ""
 msgid "Network rates"
 msgstr ""
 
-#: ui/sections.js:345
+#: ui/sections.js:349
 msgid "No GPU sensors"
 msgstr ""
 
-#: extension.js:1087
+#: extension.js:1088
 msgid "No battery"
 msgstr ""
 
-#: extension.js:1074
+#: extension.js:1075
 msgid "No data"
 msgstr ""
 
@@ -272,23 +272,23 @@ msgstr ""
 msgid "No entries"
 msgstr ""
 
-#: ui/sections.js:329
+#: ui/sections.js:333
 msgid "No fan sensors"
 msgstr ""
 
-#: ui/sections.js:341
+#: ui/sections.js:345
 msgid "No filesystems"
 msgstr ""
 
-#: ui/sections.js:338
+#: ui/sections.js:342
 msgid "No network interfaces"
 msgstr ""
 
-#: extension.js:1056
+#: extension.js:1057
 msgid "No process data yet"
 msgstr ""
 
-#: ui/sections.js:327
+#: ui/sections.js:331
 msgid "No temperature sensors"
 msgstr ""
 
@@ -296,7 +296,7 @@ msgstr ""
 msgid "No user services"
 msgstr ""
 
-#: ui/sections.js:331
+#: ui/sections.js:335
 msgid "No voltage sensors"
 msgstr ""
 
@@ -324,7 +324,7 @@ msgstr ""
 msgid "On"
 msgstr ""
 
-#: ui/sections.js:220
+#: ui/sections.js:224
 msgid "Open System Monitor"
 msgstr ""
 
@@ -336,15 +336,15 @@ msgstr ""
 msgid "Panel refresh (ms)"
 msgstr ""
 
-#: ui/renderers.js:305
+#: ui/renderers.js:318
 msgid "Power"
 msgstr ""
 
-#: ui/sections.js:381
+#: ui/sections.js:385
 msgid "Preferences"
 msgstr ""
 
-#: extension.js:1099
+#: extension.js:1100
 msgid "Pressure"
 msgstr ""
 
@@ -352,11 +352,11 @@ msgstr ""
 msgid "Pressure (PSI)"
 msgstr ""
 
-#: extension.js:1100
+#: extension.js:1101
 msgid "Pressure data unavailable"
 msgstr ""
 
-#: extension.js:479
+#: extension.js:480
 msgid "ProcMon"
 msgstr ""
 
@@ -368,19 +368,19 @@ msgstr ""
 msgid "Process identity changed"
 msgstr ""
 
-#: ui/cards.js:43
+#: ui/cards.js:44
 msgid "Processor"
 msgstr ""
 
-#: extension.js:1335
+#: extension.js:1336
 msgid "Protected process"
 msgstr ""
 
-#: ui/renderers.js:228
+#: ui/renderers.js:241
 msgid "RAM"
 msgstr ""
 
-#: ui/sections.js:245
+#: ui/sections.js:249
 msgid "Refresh"
 msgstr ""
 
@@ -392,7 +392,7 @@ msgstr ""
 msgid "Safety"
 msgstr ""
 
-#: ui/renderers.js:89
+#: ui/renderers.js:102
 msgid "Sampling…"
 msgstr ""
 
@@ -400,15 +400,15 @@ msgstr ""
 msgid "Sections"
 msgstr ""
 
-#: extension.js:1226
+#: extension.js:1227
 msgid "Send SIGKILL to “%s” (%s processes)?"
 msgstr ""
 
-#: extension.js:1227
+#: extension.js:1228
 msgid "Send SIGTERM to “%s” (%s processes)?"
 msgstr ""
 
-#: ui/sections.js:296
+#: ui/sections.js:300
 msgid "Sensors"
 msgstr ""
 
@@ -420,27 +420,27 @@ msgstr ""
 msgid "Signal failed"
 msgstr ""
 
-#: extension.js:1236
+#: extension.js:1237
 msgid "Started by the session — it may be relaunched."
 msgstr ""
 
-#: ui/sections.js:307
+#: ui/sections.js:311
 msgid "Startup"
 msgstr ""
 
-#: extension.js:1408
+#: extension.js:1409
 msgid "Stop %s"
 msgstr ""
 
-#: ui/sections.js:300
+#: ui/sections.js:304
 msgid "Storage & network"
 msgstr ""
 
-#: extension.js:1235
+#: extension.js:1236
 msgid "Supervised by %s — it may restart."
 msgstr ""
 
-#: ui/renderers.js:275
+#: ui/renderers.js:288
 msgid "Swap"
 msgstr ""
 
@@ -452,7 +452,7 @@ msgstr ""
 msgid "Temperature"
 msgstr ""
 
-#: extension.js:624
+#: extension.js:625
 msgid "Temperature %.0f°C — throttle risk"
 msgstr ""
 
@@ -464,7 +464,7 @@ msgstr ""
 msgid "Temperatures"
 msgstr ""
 
-#: extension.js:1244
+#: extension.js:1245
 msgid "Terminate"
 msgstr ""
 
@@ -472,15 +472,15 @@ msgstr ""
 msgid "Threshold notifications; escalations (94/97/99%) notify again immediately, repeats are limited to once every 6 hours per kind."
 msgstr ""
 
-#: ui/renderers.js:307
+#: ui/renderers.js:320
 msgid "Time left"
 msgstr ""
 
-#: extension.js:1055
+#: extension.js:1056
 msgid "Top CPU"
 msgstr ""
 
-#: extension.js:1063
+#: extension.js:1064
 msgid "Top memory"
 msgstr ""
 
@@ -496,11 +496,11 @@ msgstr ""
 msgid "Up %s"
 msgstr ""
 
-#: extension.js:1074
+#: extension.js:1075
 msgid "Usage"
 msgstr ""
 
-#: ui/renderers.js:267
+#: ui/renderers.js:280
 msgid "Used"
 msgstr ""
 
@@ -508,7 +508,7 @@ msgstr ""
 msgid "User services"
 msgstr ""
 
-#: ui/renderers.js:105
+#: ui/renderers.js:118
 msgid "VRAM %s / %s"
 msgstr ""
 
@@ -516,7 +516,7 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
-#: ui/sections.js:330
+#: ui/sections.js:334
 msgid "Voltage"
 msgstr ""
 
@@ -524,7 +524,7 @@ msgstr ""
 msgid "Voltages"
 msgstr ""
 
-#: ui/renderers.js:261
+#: ui/renderers.js:274
 msgid "Waiting for memory sample…"
 msgstr ""
 
@@ -544,7 +544,7 @@ msgstr ""
 msgid "enable"
 msgstr ""
 
-#: ui/renderers.js:127
+#: ui/renderers.js:140
 msgid "full %s"
 msgstr ""
 
@@ -552,7 +552,7 @@ msgstr ""
 msgid "kill command not found"
 msgstr ""
 
-#: ui/renderers.js:125
+#: ui/renderers.js:138
 msgid "some %s"
 msgstr ""
 
@@ -564,6 +564,6 @@ msgstr ""
 msgid "user"
 msgstr ""
 
-#: ui/renderers.js:87
+#: ui/renderers.js:100
 msgid "↓ %s · ↑ %s"
 msgstr ""

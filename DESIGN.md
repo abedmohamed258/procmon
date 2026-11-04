@@ -64,6 +64,16 @@ subtle on both themes. Warn/crit text colours are chosen to read on light
 All interactive rows are `can_focus` and carry accessible names. The kill
 pill is the only red control — red means destructive, always.
 
+## 5b. Menu structure (v3.1.0)
+
+- One frame per group — subsections are flat titles separated by a hairline
+  rule, never cards inside cards (first subsection in a group has no rule).
+- Menu content width 360px; scroll viewport 460px max.
+- The CPU/RAM sparkline carries a colour legend (blue dot = CPU, green dot =
+  RAM) directly above the two bar rows, so a row is never ambiguous.
+- Card titles gain a trend glyph vs the previous sample (▲ up ≥2pts,
+  ▼ down ≥2pts, ● steady) — title text only, layout never shifts.
+
 ## 6. Motion/Behaviour principles
 
 - No flicker: first paint shows placeholders, real data ≤700ms.

@@ -1,6 +1,6 @@
 import Clutter from 'gi://Clutter';
 import St from 'gi://St';
-import {SPARK_SAMPLES, percentOf} from './constants.js';
+import {SPARK_SAMPLES, percentOf, _} from './constants.js';
 
 // The chart is drawn with plain St widgets on purpose: a Cairo surface inside
 // a popup was the one code path that consistently crashed gnome-shell
@@ -35,6 +35,17 @@ export function addSparkline(ind, content) {
         style_class: 'procmon-sparkline-value',
     });
     content.add_child(ind._sparkValue);
+
+    // legend: colour chips so the two bar rows are never ambiguous
+    const legend = new St.BoxLayout({style_class: 'procmon-legend'});
+    for (const [cls, word] of [['procmon-legend-dot-cpu', _('CPU')],
+        ['procmon-legend-dot-ram', _('RAM')]]) {
+        const chip = new St.BoxLayout({style_class: 'procmon-legend-chip'});
+        chip.add_child(new St.Widget({style_class: `procmon-legend-dot ${cls}`}));
+        chip.add_child(new St.Label({text: word, style_class: 'procmon-legend-label'}));
+        legend.add_child(chip);
+    }
+    content.add_child(legend);
 
     const cpu = buildBarRow('procmon-sparkbars', 'procmon-sparkbar', BAR_MAX_HEIGHT);
     const ram = buildBarRow('procmon-sparkbars procmon-sparkbars-ram',

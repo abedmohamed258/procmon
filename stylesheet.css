@@ -47,13 +47,13 @@
 
 /* ---- menu shell ---- */
 .procmon-content {
-    width: 352px;
+    width: 360px;
     padding: 10px 10px 4px;
     spacing: 6px;
 }
 
 .procmon-scroll {
-    max-height: 440px;
+    max-height: 460px;
 }
 
 .procmon-scroll-item {
@@ -430,10 +430,18 @@
     spacing: 2px;
 }
 
-/* ---- level-2 subsections: indent inside a group, no double frame ---- */
+/* ---- level-2 subsections: flat inside a group, separated by a rule ----
+   Identity: one frame per group, never boxes inside boxes. */
 .procmon-sub-card {
-    border-radius: 7px;
-    background-color: rgba(255, 255, 255, 0.025);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 6px;
+    margin-top: 4px;
+}
+
+.procmon-sub-first {
+    border-top: none;
+    padding-top: 0px;
+    margin-top: 0px;
 }
 
 .procmon-sub-header-btn {
@@ -442,7 +450,7 @@
 }
 
 .procmon-sub-header {
-    padding: 5px 8px;
+    padding: 5px 8px 3px;
     spacing: 6px;
     border-radius: 7px;
 }
@@ -510,6 +518,37 @@
     border-radius: 5px;
     background-color: rgba(255, 255, 255, 0.06);
 }
+/* ---- sparkline legend ---- */
+.procmon-legend {
+    spacing: 10px;
+    margin-bottom: 3px;
+}
+
+.procmon-legend-chip {
+    spacing: 4px;
+}
+
+.procmon-legend-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 4px;
+    y-align: center;
+}
+
+.procmon-legend-dot-cpu {
+    background-color: rgba(53, 132, 228, 0.9);
+}
+
+.procmon-legend-dot-ram {
+    background-color: rgba(51, 209, 122, 0.9);
+}
+
+.procmon-legend-label {
+    font-size: 9px;
+    letter-spacing: 0.4px;
+    opacity: 0.55;
+}
+
 /* ---- sparkline (pure St bars, no Cairo surface) ---- */
 .procmon-sparkline-value {
     font-size: 10px;

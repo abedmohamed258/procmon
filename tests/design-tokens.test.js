@@ -47,6 +47,9 @@ check('brand gradient ram', svg.includes('#33d17a'));
 check('brand pulse path', svg.includes('M10,34 H24 L30,18 L38,46 L44,34 H54'));
 check('kill hover rule', css.includes('.procmon-kill:hover'));
 check('header icon class', css.includes('.procmon-header-icon'));
+check('legend classes present', css.includes('.procmon-legend-dot-cpu') && css.includes('.procmon-legend-dot-ram'));
+check('flat subsections', css.includes('.procmon-sub-first') && css.includes('border-top: 1px solid'));
+check('content width 360', css.includes('width: 360px'));
 
 if (failures.length > 0) {
     printerr(`FAILED ${failures.length} / ${passed + failures.length}`);

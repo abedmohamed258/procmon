@@ -67,6 +67,19 @@ export function renderSummaryCards(ind) {
             ind._setBar(cards.mem, 0);
         }
 
+        // trend arrows: delta vs the previous menu render, >= 2 points
+        const trend = (now, prev) => prev === null ? '' :
+            (now - prev >= 2 ? ' ▲' : now - prev <= -2 ? ' ▼' : ' ●');
+        cards.cpu.title.text = cards.cpu.baseTitle +
+            trend(ind._cpuPercent, ind._cardPrev.cpu);
+        const ramNow = memory && memory.totalMb > 0
+            ? percentOf(memory.usedMb, memory.totalMb) : null;
+        cards.mem.title.text = cards.mem.baseTitle +
+            (ramNow === null ? '' : trend(ramNow, ind._cardPrev.mem));
+        ind._cardPrev.cpu = ind._cpuPercent;
+        if (ramNow !== null)
+            ind._cardPrev.mem = ramNow;
+
         if (ind._sparkValue)
             ind._sparkValue.text = `${iso(Math.round(ind._cpuPercent))}% CPU · ${iso(ind._memory ? Math.round(percentOf(ind._memory.usedMb, ind._memory.totalMb)) : 0)}% RAM`;
 

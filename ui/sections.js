@@ -143,6 +143,10 @@ export function addSection(ind, content, titleText, hint, options = {}) {
             vertical: true,
             style_class: sub ? 'procmon-sub-card' : 'procmon-acc-card',
         });
+        // the first subsection inside a group gets no divider — the group
+        // frame already separates it from whatever came before
+        if (sub && content.get_children().length === 0)
+            card.add_style_class_name('procmon-sub-first');
         const {summary, chevron, header} = buildSectionHeader(ind, titleText, sub, open);
         const {box, hintLabel} = buildSectionBody(sub, hint, open);
         card.add_child(header);
