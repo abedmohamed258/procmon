@@ -3,6 +3,12 @@ name: release
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (must already exist)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -27,10 +33,11 @@ jobs:
         run: bash scripts/pack.sh
       - name: Create the GitHub release with the zip attached
         run: |
-          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" procmon@abed.dev.zip --clobber
+          TAG="${{ inputs.tag || github.ref_name }}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" procmon@abed.dev.zip --clobber
           else
-            gh release create "$GITHUB_REF_NAME" procmon@abed.dev.zip --title "ProcMon $GITHUB_REF_NAME" --generate-notes
+            gh release create "$TAG" procmon@abed.dev.zip --title "ProcMon $TAG" --generate-notes
           fi
         env:
           GH_TOKEN: ${{ github.token }}
