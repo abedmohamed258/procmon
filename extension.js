@@ -209,9 +209,10 @@ function sendSignalAsync(pid, signal) {
 
 const ProcMonIndicator = GObject.registerClass(
 class ProcMonIndicator extends PanelMenu.Button {
-    _init(settings) {
+    _init(settings, dir = null) {
         super._init(0.0, 'ProcMon');
         this.accessible_name = _('System monitor');
+        this._dir = dir;
 
         this._settings = settings;
         this._cancellable = new Gio.Cancellable();
@@ -264,10 +265,10 @@ class ProcMonIndicator extends PanelMenu.Button {
 
         const box = new St.BoxLayout({style_class: 'panel-status-menu-box procmon-box'});
         box.add_child(new St.Icon({
-            icon_name: 'utilities-system-monitor-symbolic',
+            gicon: this._procmonGIcon(),
             // many themes (Zorin, Papirus) ship only the full-colour icon, so
             // without a fallback the panel button renders as an empty gap
-            fallback_icon_name: 'utilities-system-monitor',
+            fallback_icon_name: 'utilities-system-monitor-symbolic',
             style_class: 'system-status-icon procmon-icon',
         }));
         this._panelItems = {};
@@ -296,6 +297,22 @@ class ProcMonIndicator extends PanelMenu.Button {
         // Build the structure here so the first open() has content;
         // the open handler still rebuilds fresh content on every open.
         this._buildMenu();
+    }
+
+    // ----- identity ---------------------------------------------------
+
+    // The brand mark: a blue→green tile with a white pulse. A FileIcon
+    // returns null when the asset is missing, and St.Icon then falls back
+    // to the themed icon — the mark is never a single point of failure.
+    _procmonGIcon() {
+        try {
+            const file = this._dir?.get_child('assets/procmon.svg');
+            if (file?.query_exists(null))
+                return Gio.FileIcon.new(file);
+        } catch (error) {
+            console.warn(`procmon: icon lookup: ${error}`);
+        }
+        return null;
     }
 
     // ----- timers --------------------------------------------------------
@@ -458,10 +475,14 @@ class ProcMonIndicator extends PanelMenu.Button {
         if (!this._alertSource) {
             // GNOME 45+: Source takes a params object — positional
             // (title, iconName) throws "should be an object with properties"
-            this._alertSource = new MessageTray.Source({
+            const params = {
                 title: _('ProcMon'),
                 iconName: 'utilities-system-monitor-symbolic',
-            });
+            };
+            const mark = this._procmonGIcon();
+            if (mark)
+                params.icon = mark;
+            this._alertSource = new MessageTray.Source(params);
             this._alertSource.connect('destroy', () => {
                 this._alertSource = null;
             });
@@ -1412,9 +1433,9 @@ class ProcMonIndicator extends PanelMenu.Button {
             void this._sampleMenuData();
     }
 
-    // ----- actions --------------------------------------------------------
+    // ----- actions ---------------------------------------------------
 
-    // the AppSystem launch is the single path; no second spawn fallback
+    // The AppSystem launch is the single path; no second spawn fallback
     _openSystemMonitor() {
         const appSystem = Shell.AppSystem.get_default();
         let app = appSystem.lookup_app('org.gnome.SystemMonitor.desktop')
@@ -1431,6 +1452,18 @@ class ProcMonIndicator extends PanelMenu.Button {
             // fall through to notification
         }
         Main.notify('ProcMon', _('Could not open System Monitor'));
+    }
+
+    _openPrefs() {
+        this.menu.close();
+        try {
+            const argv = ['gnome-extensions', 'prefs', 'procmon@abed.dev'];
+            Gio.Subprocess.new(argv,
+                Gio.SubprocessFlags.STDOUT_SILENCE |
+                    Gio.SubprocessFlags.STDERR_SILENCE);
+        } catch (error) {
+            Main.notify('ProcMon', _('Could not open preferences'));
+        }
     }
 
     _renderMemorySection() {
@@ -1488,7 +1521,7 @@ export default class ProcmonExtension extends Extension {
             this._indicator = null;
         }
         this._settings = this.getSettings();
-        this._indicator = new ProcMonIndicator(this._settings);
+        this._indicator = new ProcMonIndicator(this._settings, this.dir);
         Main.panel.addToStatusArea('procmon', this._indicator, 0, 'right');
     }
 

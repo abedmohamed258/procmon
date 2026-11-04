@@ -23,7 +23,7 @@ msgstr[3] "%s عمليات"
 msgstr[4] "%s عملية"
 msgstr[5] "%s عملية"
 
-#: extension.js:1393
+#: extension.js:1428
 msgid "%s process is still running"
 msgid_plural "%s processes are still running"
 msgstr[0] "لم يبقَ أي عملية قيد التشغيل"
@@ -33,7 +33,7 @@ msgstr[3] "%s عمليات ما تزال قيد التشغيل"
 msgstr[4] "%s عملية ما تزال قيد التشغيل"
 msgstr[5] "%s عملية ما تزال قيد التشغيل"
 
-#: extension.js:1346
+#: extension.js:1377
 msgid "%s process not signaled"
 msgid_plural "%s processes not signaled"
 msgstr[0] "لم تُرسَل الإشارة إلى أي عملية"
@@ -53,11 +53,11 @@ msgstr[3] "إنهاء %s (عدد العمليات: %d)"
 msgstr[4] "إنهاء %s (عدد العمليات: %d)"
 msgstr[5] "إنهاء %s (عدد العمليات: %d)"
 
-#: extension.js:1390
+#: extension.js:1425
 msgid "%s is supervised by %s"
 msgstr "%s تحت إشراف %s"
 
-#: extension.js:1374
+#: extension.js:1406
 msgid "%s restarted — supervised by %s"
 msgstr "أُعيد تشغيل %s — تحت إشراف %s"
 
@@ -77,7 +77,7 @@ msgstr "تطبيقات الإقلاع"
 msgid "Available"
 msgstr "المتاح"
 
-#: extension.js:1056
+#: extension.js:1087
 msgid "Battery"
 msgstr "البطارية"
 
@@ -101,7 +101,7 @@ msgstr "استخدام المعالج"
 msgid "Cached"
 msgstr "المخزّن مؤقتًا"
 
-#: extension.js:1210
+#: extension.js:1241
 msgid "Cancel"
 msgstr "إلغاء"
 
@@ -133,19 +133,23 @@ msgstr "الأنوية %s"
 msgid "Could not %s %s"
 msgstr "تعذّر %s %s"
 
-#: extension.js:1419
+#: extension.js:1454
 msgid "Could not open System Monitor"
 msgstr "تعذّر فتح مراقب النظام"
 
-#: extension.js:1380
+#: extension.js:1465
+msgid "Could not open preferences"
+msgstr "تعذّر فتح التفضيلات"
+
+#: extension.js:1413
 msgid "Could not stop %s"
 msgstr "تعذّر إيقاف %s"
 
-#: extension.js:1314
+#: extension.js:1345
 msgid "Could not terminate %s"
 msgstr "تعذّر إنهاء %s"
 
-#: extension.js:477
+#: extension.js:506
 msgid "Details"
 msgstr "التفاصيل"
 
@@ -157,7 +161,7 @@ msgstr "التشخيصات"
 msgid "Diagnostics copied"
 msgstr "تم نسخ التشخيصات"
 
-#: extension.js:1389
+#: extension.js:1424
 msgid "Did not terminate"
 msgstr "لم يكتمل الإنهاء"
 
@@ -169,7 +173,7 @@ msgstr "جارٍ التفريغ"
 msgid "Disk"
 msgstr "القرص"
 
-#: extension.js:543
+#: extension.js:574
 msgid "Disk %.0f%% full"
 msgstr "القرص امتلأ بنسبة %.0f%%"
 
@@ -189,7 +193,7 @@ msgstr "كل مفتاح يضيف أو يحذف قسمًا من القائمة ا
 msgid "Fans"
 msgstr "المراوح"
 
-#: extension.js:1213
+#: extension.js:1244
 msgid "Force kill"
 msgstr "إنهاء قسري"
 
@@ -245,7 +249,7 @@ msgstr "جارٍ التحميل…"
 msgid "Memory"
 msgstr "الذاكرة"
 
-#: extension.js:515
+#: extension.js:546
 msgid "Memory %.0f%% — almost full"
 msgstr "الذاكرة %.0f%% — على وشك الامتلاء"
 
@@ -277,11 +281,11 @@ msgstr "سرعات الشبكة"
 msgid "No GPU sensors"
 msgstr "لا توجد مستشعرات رسوميات"
 
-#: extension.js:1056
+#: extension.js:1087
 msgid "No battery"
 msgstr "لا توجد بطارية"
 
-#: extension.js:1043
+#: extension.js:1074
 msgid "No data"
 msgstr "لا توجد بيانات"
 
@@ -301,7 +305,7 @@ msgstr "لا توجد أنظمة ملفات"
 msgid "No network interfaces"
 msgstr "لا توجد واجهات شبكة"
 
-#: extension.js:1025
+#: extension.js:1056
 msgid "No process data yet"
 msgstr "لا بيانات للعمليات بعد"
 
@@ -362,7 +366,11 @@ msgstr "تحديث الشريط (م ث)"
 msgid "Power"
 msgstr "القدرة"
 
-#: extension.js:1068
+#: ui/sections.js:381
+msgid "Preferences"
+msgstr "التفضيلات"
+
+#: extension.js:1099
 msgid "Pressure"
 msgstr "الضغط"
 
@@ -370,11 +378,11 @@ msgstr "الضغط"
 msgid "Pressure (PSI)"
 msgstr "الضغط (PSI)"
 
-#: extension.js:1069
+#: extension.js:1100
 msgid "Pressure data unavailable"
 msgstr "بيانات الضغط غير متاحة"
 
-#: extension.js:459
+#: extension.js:479
 msgid "ProcMon"
 msgstr "ProcMon"
 
@@ -390,7 +398,7 @@ msgstr "تغيّرت هوية العملية"
 msgid "Processor"
 msgstr "المعالج"
 
-#: extension.js:1304
+#: extension.js:1335
 msgid "Protected process"
 msgstr "عملية محمية"
 
@@ -418,11 +426,11 @@ msgstr "جارٍ أخذ العينة…"
 msgid "Sections"
 msgstr "الأقسام"
 
-#: extension.js:1195
+#: extension.js:1226
 msgid "Send SIGKILL to “%s” (%s processes)?"
 msgstr "إرسال SIGKILL إلى «%s» (عدد العمليات: %s)؟"
 
-#: extension.js:1196
+#: extension.js:1227
 msgid "Send SIGTERM to “%s” (%s processes)?"
 msgstr "إرسال SIGTERM إلى «%s» (عدد العمليات: %s)؟"
 
@@ -438,7 +446,7 @@ msgstr "إظهار المخطط المصغّر"
 msgid "Signal failed"
 msgstr "فشل إرسال الإشارة"
 
-#: extension.js:1205
+#: extension.js:1236
 msgid "Started by the session — it may be relaunched."
 msgstr "بدأته الجلسة — قد يُعاد تشغيله."
 
@@ -446,7 +454,7 @@ msgstr "بدأته الجلسة — قد يُعاد تشغيله."
 msgid "Startup"
 msgstr "الإقلاع"
 
-#: extension.js:1375
+#: extension.js:1408
 msgid "Stop %s"
 msgstr "إيقاف %s"
 
@@ -454,7 +462,7 @@ msgstr "إيقاف %s"
 msgid "Storage & network"
 msgstr "التخزين والشبكة"
 
-#: extension.js:1204
+#: extension.js:1235
 msgid "Supervised by %s — it may restart."
 msgstr "تحت إشراف %s — قد يُعاد تشغيله."
 
@@ -470,7 +478,7 @@ msgstr "مراقب النظام"
 msgid "Temperature"
 msgstr "الحرارة"
 
-#: extension.js:593
+#: extension.js:624
 msgid "Temperature %.0f°C — throttle risk"
 msgstr "حرارة %.0f°م — خطر تقنين الأداء"
 
@@ -482,7 +490,7 @@ msgstr "تنبيه الحرارة (°م)"
 msgid "Temperatures"
 msgstr "الحرارة"
 
-#: extension.js:1213
+#: extension.js:1244
 msgid "Terminate"
 msgstr "إنهاء"
 
@@ -499,11 +507,11 @@ msgstr ""
 msgid "Time left"
 msgstr "الوقت المتبقي"
 
-#: extension.js:1024
+#: extension.js:1055
 msgid "Top CPU"
 msgstr "أعلى المعالج"
 
-#: extension.js:1032
+#: extension.js:1063
 msgid "Top memory"
 msgstr "أعلى الذاكرة"
 
@@ -519,7 +527,7 @@ msgstr "تعذّر تحقّق هوية المستخدم — الإنهاء مع�
 msgid "Up %s"
 msgstr "مدة التشغيل %s"
 
-#: extension.js:1043
+#: extension.js:1074
 msgid "Usage"
 msgstr "الاستخدام"
 

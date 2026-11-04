@@ -357,11 +357,30 @@ export function addOptionalSections(ind, content) {
 
 export function addHeader(ind, content) {
         const header = new St.BoxLayout({style_class: 'procmon-header'});
+        const mark = ind._procmonGIcon();
+        header.add_child(mark
+            ? new St.Icon({gicon: mark, style_class: 'procmon-header-icon',
+                y_align: Clutter.ActorAlign.CENTER})
+            : new St.Icon({icon_name: 'utilities-system-monitor-symbolic',
+                style_class: 'procmon-header-icon',
+                y_align: Clutter.ActorAlign.CENTER}));
         header.add_child(new St.Label({
             text: _('ProcMon'),
             style_class: 'procmon-title',
             y_align: Clutter.ActorAlign.CENTER,
         }));
+        const prefsBtn = new St.Button({
+            style_class: 'procmon-header-btn',
+            can_focus: true,
+            child: new St.Icon({
+                icon_name: 'emblem-system-symbolic',
+                style_class: 'procmon-header-icon',
+                y_align: Clutter.ActorAlign.CENTER,
+            }),
+        });
+        prefsBtn.accessible_name = _('Preferences');
+        prefsBtn.connect('clicked', () => ind._openPrefs());
+        header.add_child(prefsBtn);
         header.add_child(new St.Widget({x_expand: true}));
         content.add_child(header);
 

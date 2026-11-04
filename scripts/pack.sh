@@ -8,14 +8,15 @@ cd "$(dirname "$0")/.."
 rm -f procmon@abed.dev.zip
 zip -qr procmon@abed.dev.zip \
     metadata.json extension.js prefs.js stylesheet.css \
-    README.md LICENSE package.json \
-    lib locale schemas ui
+    README.md LICENSE package.json DESIGN.md \
+    lib locale schemas ui assets
 # Guard: never ship dev-only trees.
 zip -qd procmon@abed.dev.zip 'tests/*' 'po/*' 'scripts/*' '*.zip' '*.bak' 2>/dev/null || true
 
 list=$(unzip -l procmon@abed.dev.zip)
 for required in extension.js ui/sparkline.js ui/startup.js ui/sections.js \
         ui/renderers.js ui/rows.js ui/cards.js ui/constants.js lib/proc.js \
+        assets/procmon.svg \
         metadata.json schemas/org.gnome.shell.extensions.procmon.gschema.xml; do
     echo "$list" | grep -q " $required\$" || { echo "pack: MISSING $required"; exit 1; }
 done

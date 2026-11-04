@@ -1,4 +1,3 @@
-# 131 single + 4 plural strings
 # ProcMon translatable strings.
 #, fuzzy
 msgid ""
@@ -19,13 +18,13 @@ msgid_plural "%s processes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: extension.js:1393
+#: extension.js:1428
 msgid "%s process is still running"
 msgid_plural "%s processes are still running"
 msgstr[0] ""
 msgstr[1] ""
 
-#: extension.js:1346
+#: extension.js:1377
 msgid "%s process not signaled"
 msgid_plural "%s processes not signaled"
 msgstr[0] ""
@@ -37,11 +36,11 @@ msgid_plural "Terminate %s (%d processes)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: extension.js:1390
+#: extension.js:1425
 msgid "%s is supervised by %s"
 msgstr ""
 
-#: extension.js:1374
+#: extension.js:1406
 msgid "%s restarted — supervised by %s"
 msgstr ""
 
@@ -61,7 +60,7 @@ msgstr ""
 msgid "Available"
 msgstr ""
 
-#: extension.js:1056
+#: extension.js:1087
 msgid "Battery"
 msgstr ""
 
@@ -85,7 +84,7 @@ msgstr ""
 msgid "Cached"
 msgstr ""
 
-#: extension.js:1210
+#: extension.js:1241
 msgid "Cancel"
 msgstr ""
 
@@ -117,19 +116,23 @@ msgstr ""
 msgid "Could not %s %s"
 msgstr ""
 
-#: extension.js:1419
+#: extension.js:1454
 msgid "Could not open System Monitor"
 msgstr ""
 
-#: extension.js:1380
+#: extension.js:1465
+msgid "Could not open preferences"
+msgstr ""
+
+#: extension.js:1413
 msgid "Could not stop %s"
 msgstr ""
 
-#: extension.js:1314
+#: extension.js:1345
 msgid "Could not terminate %s"
 msgstr ""
 
-#: extension.js:477
+#: extension.js:506
 msgid "Details"
 msgstr ""
 
@@ -141,7 +144,7 @@ msgstr ""
 msgid "Diagnostics copied"
 msgstr ""
 
-#: extension.js:1389
+#: extension.js:1424
 msgid "Did not terminate"
 msgstr ""
 
@@ -153,7 +156,7 @@ msgstr ""
 msgid "Disk"
 msgstr ""
 
-#: extension.js:543
+#: extension.js:574
 msgid "Disk %.0f%% full"
 msgstr ""
 
@@ -173,7 +176,7 @@ msgstr ""
 msgid "Fans"
 msgstr ""
 
-#: extension.js:1213
+#: extension.js:1244
 msgid "Force kill"
 msgstr ""
 
@@ -225,7 +228,7 @@ msgstr ""
 msgid "Memory"
 msgstr ""
 
-#: extension.js:515
+#: extension.js:546
 msgid "Memory %.0f%% — almost full"
 msgstr ""
 
@@ -257,11 +260,11 @@ msgstr ""
 msgid "No GPU sensors"
 msgstr ""
 
-#: extension.js:1056
+#: extension.js:1087
 msgid "No battery"
 msgstr ""
 
-#: extension.js:1043
+#: extension.js:1074
 msgid "No data"
 msgstr ""
 
@@ -281,7 +284,7 @@ msgstr ""
 msgid "No network interfaces"
 msgstr ""
 
-#: extension.js:1025
+#: extension.js:1056
 msgid "No process data yet"
 msgstr ""
 
@@ -337,7 +340,11 @@ msgstr ""
 msgid "Power"
 msgstr ""
 
-#: extension.js:1068
+#: ui/sections.js:381
+msgid "Preferences"
+msgstr ""
+
+#: extension.js:1099
 msgid "Pressure"
 msgstr ""
 
@@ -345,11 +352,11 @@ msgstr ""
 msgid "Pressure (PSI)"
 msgstr ""
 
-#: extension.js:1069
+#: extension.js:1100
 msgid "Pressure data unavailable"
 msgstr ""
 
-#: extension.js:459
+#: extension.js:479
 msgid "ProcMon"
 msgstr ""
 
@@ -365,7 +372,7 @@ msgstr ""
 msgid "Processor"
 msgstr ""
 
-#: extension.js:1304
+#: extension.js:1335
 msgid "Protected process"
 msgstr ""
 
@@ -393,11 +400,11 @@ msgstr ""
 msgid "Sections"
 msgstr ""
 
-#: extension.js:1195
+#: extension.js:1226
 msgid "Send SIGKILL to “%s” (%s processes)?"
 msgstr ""
 
-#: extension.js:1196
+#: extension.js:1227
 msgid "Send SIGTERM to “%s” (%s processes)?"
 msgstr ""
 
@@ -413,7 +420,7 @@ msgstr ""
 msgid "Signal failed"
 msgstr ""
 
-#: extension.js:1205
+#: extension.js:1236
 msgid "Started by the session — it may be relaunched."
 msgstr ""
 
@@ -421,7 +428,7 @@ msgstr ""
 msgid "Startup"
 msgstr ""
 
-#: extension.js:1375
+#: extension.js:1408
 msgid "Stop %s"
 msgstr ""
 
@@ -429,7 +436,7 @@ msgstr ""
 msgid "Storage & network"
 msgstr ""
 
-#: extension.js:1204
+#: extension.js:1235
 msgid "Supervised by %s — it may restart."
 msgstr ""
 
@@ -445,7 +452,7 @@ msgstr ""
 msgid "Temperature"
 msgstr ""
 
-#: extension.js:593
+#: extension.js:624
 msgid "Temperature %.0f°C — throttle risk"
 msgstr ""
 
@@ -457,7 +464,7 @@ msgstr ""
 msgid "Temperatures"
 msgstr ""
 
-#: extension.js:1213
+#: extension.js:1244
 msgid "Terminate"
 msgstr ""
 
@@ -469,11 +476,11 @@ msgstr ""
 msgid "Time left"
 msgstr ""
 
-#: extension.js:1024
+#: extension.js:1055
 msgid "Top CPU"
 msgstr ""
 
-#: extension.js:1032
+#: extension.js:1063
 msgid "Top memory"
 msgstr ""
 
@@ -489,7 +496,7 @@ msgstr ""
 msgid "Up %s"
 msgstr ""
 
-#: extension.js:1043
+#: extension.js:1074
 msgid "Usage"
 msgstr ""
 

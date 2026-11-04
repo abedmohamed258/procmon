@@ -72,6 +72,19 @@
     letter-spacing: 0.2px;
 }
 
+.procmon-header-icon {
+    icon-size: 16px;
+}
+
+.procmon-header-btn {
+    border-radius: 6px;
+    padding: 3px;
+}
+
+.procmon-header-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
 .procmon-meta {
     font-size: 10px;
     opacity: 0.6;
@@ -282,23 +295,34 @@
     opacity: 0.8;
 }
 
-/* ---- kill button: fixed slot, never shifts the value column ---- */
+/* ---- kill button: fixed slot, never shifts the value column.
+   Identity: ghost soft-square — transparent at rest, red tint on hover,
+   the only destructive control in the menu. */
 .procmon-kill {
     width: 20px;
     height: 20px;
     min-width: 20px;
     min-height: 20px;
-    border-radius: 10px;
+    border-radius: 6px;
     padding: 0px;
     background-color: transparent;
+    border: 1px solid transparent;
 }
 
 .procmon-kill:hover {
-    background-color: rgba(255, 70, 55, 0.45);
+    background-color: rgba(224, 27, 36, 0.12);
+    border: 1px solid rgba(224, 27, 36, 0.25);
+}
+
+.procmon-kill:hover .procmon-kill-label,
+.procmon-kill:focus .procmon-kill-label {
+    color: rgba(224, 27, 36, 0.95);
+    opacity: 1;
 }
 
 .procmon-kill:active {
-    background-color: rgba(255, 70, 55, 0.65);
+    background-color: rgba(224, 27, 36, 0.22);
+    border: 1px solid rgba(224, 27, 36, 0.35);
 }
 
 .procmon-kill-label {
@@ -327,7 +351,12 @@
 }
 
 .procmon-footer-btn:active {
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.procmon-footer-btn:focus {
+    border: 1px solid rgba(53, 132, 228, 0.55);
 }
 
 .procmon-footer-icon {
@@ -445,11 +474,12 @@
     spacing: 1px;
 }
 
-/* ---- startup toggles ---- */
+/* ---- startup toggles: On/Off pill ---- */
 .procmon-toggle {
     border-radius: 10px;
     padding: 2px 8px;
     min-width: 34px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
 }
 
 .procmon-toggle-label {

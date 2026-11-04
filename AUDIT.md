@@ -33,6 +33,21 @@ Method: code read (all 4,476 lines), `gjs` test run, `journalctl /usr/bin/gnome-
 13. `metadata.json` description lists the v1 feature set (no Startup, no alerts, no PSI/sensors detail).
 14. Arabic po: 109 msgids, 4 untranslated — good, but new strings must keep it that way.
 
+## Round 4 (v3.0.0 — visual identity + prefs gear)
+
+- **Brand mark**: `assets/procmon.svg` (blue→green tile, white pulse) as the
+  panel icon (FileIcon + themed fallback), alert-source icon, and menu header
+  mark. Verified live in a panel crop — tile + pulse readable at 16px.
+- **DESIGN.md**: full identity spec (mark, colour tokens, type scale, space,
+  controls, motion, do/don't) — the closed palette the tokens test enforces.
+  Repo description on GitHub refreshed (was listing the removed heatmap).
+- **Control system** per DESIGN §5: kill button is now a ghost soft-square
+  (red tint + red × on hover/focus, the only destructive red), toggles got a
+  border, footer buttons got active/focus states, gear button in the header.
+- **Feature**: header gear → opens extension prefs (`gnome-extensions prefs`).
+- Design-tokens test: +6 identity checks (mark + gradient + pulse + rules).
+  Total 111 gjs checks. Version alignment: metadata 4 / package 3.0.0 / tag v3.0.0.
+
 ## Round 3 (v2.9.0 — panel colours, diagnostics, import hygiene)
 
 Hotfix v2.9.1 — **smart alerts were never working on GNOME 45+**:

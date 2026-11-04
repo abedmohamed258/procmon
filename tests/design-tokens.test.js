@@ -37,6 +37,17 @@ check('card-value font-size 16px', css.includes('font-size: 16px'));
 check('warn accent present', css.includes('rgba(255, 190, 111'));
 check('crit accent present', css.includes('rgba(230, 97, 0'));
 
+// identity: brand mark ships with both accent stops + pulse path
+const svgPath = GLib.build_filenamev([testDir, '..', 'assets', 'procmon.svg']);
+const [svgOk, svgBytes] = GLib.file_get_contents(svgPath);
+check('brand mark exists', svgOk);
+const svg = svgOk ? new TextDecoder().decode(svgBytes) : '';
+check('brand gradient cpu', svg.includes('#3584e4'));
+check('brand gradient ram', svg.includes('#33d17a'));
+check('brand pulse path', svg.includes('M10,34 H24 L30,18 L38,46 L44,34 H54'));
+check('kill hover rule', css.includes('.procmon-kill:hover'));
+check('header icon class', css.includes('.procmon-header-icon'));
+
 if (failures.length > 0) {
     printerr(`FAILED ${failures.length} / ${passed + failures.length}`);
     system.exit(1);

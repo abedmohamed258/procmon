@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/procmon.svg" width="96" height="96" alt="ProcMon mark">
+</p>
+
 # ProcMon
 
 A system monitor for the GNOME top panel — CPU, RAM and temperature at a
@@ -5,12 +9,14 @@ glance, with a dashboard menu for everything else. Fully async sampling from
 `/proc` and `/sys`, no external dependencies, GNOME Shell 45–49 (X11 and
 Wayland), English + Arabic.
 
-![Menu](screenshots/menu.png)
+The visual identity (mark, colour, type, controls) is specified in
+[`DESIGN.md`](DESIGN.md) — one idea: *the pulse of the machine*.
 
 ## Features
 
-- **Panel indicator** with configurable items (CPU, temperature, RAM) and
-  warn/crit colouring on the summary bars.
+- **Panel indicator** with configurable items (CPU, temperature, RAM). Each
+  item is coloured by its own attention level — amber at 75%, red at 90% —
+  so a calm readout never paints a hot one amber.
 - **Dashboard menu**: summary cards (CPU / memory / disk-or-GPU), a CPU+RAM
   history sparkline (blue CPU bars, green RAM bars), and collapsible groups
   so you see only what you need.
@@ -31,7 +37,8 @@ Wayland), English + Arabic.
   with On/Off toggles that only flip after the underlying call succeeds.
 - **Preferences** built with Adw (no St/Clutter in the prefs process):
   refresh rates, panel items, alert thresholds, per-section visibility,
-  kill confirmation.
+  kill confirmation, About + one-click copy-diagnostics. The menu header
+  has a gear shortcut straight to preferences.
 - **Internationalised**: English source with Arabic provided; every visible
   number goes through isolates so RTL layouts stay clean.
 
@@ -56,18 +63,19 @@ Log out and back in (or restart GNOME Shell on X11) the first time.
 ## Development
 
 ```bash
-npm test        # 94 gjs checks: parsing + design tokens + alerts + supervisor
+npm test        # 111 gjs checks: parsing + design tokens + alerts + supervisor + panel levels
 npm run check   # node --check on every JS file
-bash scripts/pack.sh      # produces procmon@abed.dev.zip (runtime files only)
+bash scripts/pack.sh      # produces procmon@abed.dev.zip (runtime files only, asserts the manifest)
 bash scripts/compile-schemas.sh
 bash scripts/compile-locale.sh
+python3 scripts/extract-strings.py > po/procmon.pot   # after adding UI strings
 ```
 
 Code layout: `extension.js` (indicator + sampling orchestration),
 `lib/proc.js` (pure parsers — gettext-free, unit-tested), `ui/` (menu
 components: cards, sections, rows, renderers, sparkline, startup),
-`prefs.js` (Adw preferences), `stylesheet.css` (alpha-only design tokens so
-light and dark themes both work).
+`prefs.js` (Adw preferences), `stylesheet.css` (theme-inherited foreground,
+accent-only literal colours), `assets/procmon.svg` (the brand mark).
 
 ## License
 
