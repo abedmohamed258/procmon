@@ -1,0 +1,23 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  gjs-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install gjs and node
+        run: sudo apt-get update && sudo apt-get install -y gjs nodejs npm
+      - name: Run tests (94 checks)
+        run: npm test
+      - name: Syntax check every JS file
+        run: npm run check
+      - name: Validate metadata and schema
+        run: |
+          python3 -m json.tool metadata.json > /dev/null
+          python3 -m json.tool package.json > /dev/null
+          glib-compile-schemas --strict schemas/

@@ -33,7 +33,7 @@ import * as startup from './ui/startup.js';
 import * as renderers from './ui/renderers.js';
 
 import {_, _n, iso, FIRST_SAMPLE_MS, IO_WARMUP_MS, EXIT_CHECK_MS,
-    TEMPERATURE_CACHE_MS, ALERT_COOLDOWN_MS, SPARK_SAMPLES, SPARKLINE_WIDTH,
+    TEMPERATURE_CACHE_MS, DISK_CACHE_MS, ALERT_COOLDOWN_MS, SPARK_SAMPLES, SPARKLINE_WIDTH,
     SPARKLINE_HEIGHT,
     MAX_TEMPERATURES, MAX_FILESYSTEMS, MAX_GPU_CARDS, MIN_PID, ENUMERATE_BATCH,
     FALLBACK_PROCESS_ICON, PSI_RESOURCES, BATTERY_STATUS_TEXT, percentOf} from './ui/constants.js';
@@ -245,6 +245,7 @@ class ProcMonIndicator extends PanelMenu.Button {
         this._frequencies = [];
         this._sensors = {};
         this._fsData = [];
+        this._diskAt = 0;
         this._ioCurrent = null;
         this._ioRates = null;
         this._iconCache = new Map();
@@ -254,6 +255,7 @@ class ProcMonIndicator extends PanelMenu.Button {
         this._sparkValue = null;
         this._lastAlertAt = new Map();
         this._alertState = new Map();
+        this._menuGeneration = 0; // bumped per build; stale async fills check it
         this._openSections = new Set(['processes', 'memory', 'memory-usage', 'top-cpu']);
 
         this._currentUid = -1;
@@ -517,6 +519,12 @@ class ProcMonIndicator extends PanelMenu.Button {
     async _refreshDiskUsage() {
         if (this._diskBusy)
             return;
+        // the panel tick fires every ~2s, but statfs per filesystem at that
+        // rate wakes the disk for nothing; the alert only needs ~30s freshness
+        const now = GLib.get_monotonic_time() / 1000;
+        if (now - this._diskAt < DISK_CACHE_MS / 1000)
+            return;
+        this._diskAt = now;
         this._diskBusy = true;
         try {
             this._fsData = await this._readFilesystems();
@@ -880,8 +888,10 @@ class ProcMonIndicator extends PanelMenu.Button {
     // ----- menu construction (once per open/settings change) --------------
 
     _buildMenu() {
+        this._menuGeneration++;
         this.menu.removeAll();
-        this._iconCache.clear();
+        // _iconCache survives rebuilds on purpose: app-icon lookup walks
+        // every running app, and icons barely change between menu opens
         this._topRows = Math.max(1, this._settings.get_int('top-count'));
 
         const content = new St.BoxLayout({
@@ -891,6 +901,8 @@ class ProcMonIndicator extends PanelMenu.Button {
         this._ui = {};
                 this._sparkArea = null;
                 this._sparkValue = null;
+                this._sparkCpuRow = null;
+                this._sparkRamRow = null;
 
         this._addHeader(content);
         if (this._settings.get_boolean('show-sparkline'))
@@ -979,12 +991,16 @@ class ProcMonIndicator extends PanelMenu.Button {
         return startup.runSystemctl(this, args);
     }
 
+    _runSystemctlChecked(args) {
+        return startup.runSystemctlChecked(this, args);
+    }
+
     _addStartupSection(box) {
         return startup.addStartupSection(this, box);
     }
 
-    async _fillServices(section) {
-        return startup.fillServices(this, section);
+    async _fillServices(section, generation) {
+        return startup.fillServices(this, section, generation);
     }
 
     _makeLineRow(box) {
@@ -1156,7 +1172,8 @@ class ProcMonIndicator extends PanelMenu.Button {
         if (this._settings.get_boolean('kill-confirmation'))
             this._confirmKill(group, signal);
         else
-            void this._executeGroupKill(group, signal);
+            void this._executeGroupKill(group, signal)
+                .catch(error => console.warn(`procmon: kill failed: ${error}`));
     }
 
     _confirmKill(group, signal) {
@@ -1193,7 +1210,8 @@ class ProcMonIndicator extends PanelMenu.Button {
                 // ModalDialog does not close itself when a button fires, and
                 // its grab would keep the whole shell pointer-inert
                 dialog.close();
-                void this._executeGroupKill(group, signal);
+                void this._executeGroupKill(group, signal)
+                    .catch(error => console.warn(`procmon: kill failed: ${error}`));
             },
         });
         dialog.open();
@@ -1330,7 +1348,8 @@ class ProcMonIndicator extends PanelMenu.Button {
     _scheduleExitCheck(group, targets) {
         this._clearTimer('_exitCheckId');
         this._exitCheckId = this._later(EXIT_CHECK_MS, () =>
-            void this._verifyGroupKill(group, targets));
+            void this._verifyGroupKill(group, targets)
+                .catch(error => console.warn(`procmon: exit check failed: ${error}`)));
     }
 
     async _verifyGroupKill(group, targets) {
@@ -1349,7 +1368,12 @@ class ProcMonIndicator extends PanelMenu.Button {
                     _('ProcMon'),
                     _('%s restarted — supervised by %s').format(group.name, iso(unit)));
                 notif.addAction(_('Stop %s').format(iso(unit)), () => {
-                    void startup.runSystemctl(this, ['stop', unit]);
+                    void startup.runSystemctlChecked(this, ['stop', unit])
+                        .then(ok => {
+                            if (!ok)
+                                Main.notify('ProcMon',
+                                    _('Could not stop %s').format(iso(unit)));
+                        });
                 });
                 const source = this._alertSource();
                 if (typeof source.showNotification === 'function')
@@ -1405,6 +1429,18 @@ class ProcMonIndicator extends PanelMenu.Button {
         this._destroyed = true;
         this._stopAllTimers();
         this._cancellable.cancel();
+        // the notification source outlives the indicator by design (alerts
+        // fire while the panel is up), but disabling must not orphan it —
+        // otherwise every enable cycle leaks one more tray source
+        if (this._alertSource) {
+            const source = this._alertSource;
+            this._alertSource = null;
+            try {
+                source.destroy();
+            } catch (error) {
+                console.warn(`procmon: alert source cleanup: ${error}`);
+            }
+        }
         if (this._settingsSignalId) {
             this._settings.disconnect(this._settingsSignalId);
             this._settingsSignalId = 0;
@@ -1419,6 +1455,12 @@ class ProcMonIndicator extends PanelMenu.Button {
 
 export default class ProcmonExtension extends Extension {
     enable() {
+        // enable() without a preceding disable() would stack a second
+        // indicator on the panel; tear the old one down first
+        if (this._indicator) {
+            this._indicator.destroy();
+            this._indicator = null;
+        }
         this._settings = this.getSettings();
         this._indicator = new ProcMonIndicator(this._settings);
         Main.panel.addToStatusArea('procmon', this._indicator, 0, 'right');

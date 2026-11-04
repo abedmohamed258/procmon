@@ -2,12 +2,25 @@ import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import St from 'gi://St';
-import Gettext from 'gettext';
-import {assessKillProcess, averageFrequencyGhz, collectFans, collectTemperatures, collectVoltages, computeCoreShares, computeCpuShares, computeDiskRates, computeNetRates, formatBytes, formatDuration, formatRate, groupProcesses, isFiniteRect, isPointInsideRect, ownedProcessEntries, parseBatteryDetails, parseCoreTicks, parseCpuTicks, parseDiskStats, parseGpuCard, parseLoadAvg, parseMemInfo, parseNetDev, parsePsi, parseStatLine, parseUptime} from '../lib/proc.js';
-import { FIRST_SAMPLE_MS, IO_WARMUP_MS, EXIT_CHECK_MS, TEMPERATURE_CACHE_MS, ALERT_COOLDOWN_MS, SPARK_SAMPLES, SPARKLINE_WIDTH, iso, _, _n, MAX_TEMPERATURES, MAX_FILESYSTEMS, PSI_RESOURCES, FALLBACK_PROCESS_ICON } from './constants.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import {_} from './constants.js';
+
+// A section belongs to one menu build. Any async fill that returns after the
+// menu was rebuilt (or the indicator destroyed) must not touch its actors —
+// St raises "already disposed" storms in the journal otherwise.
+function sectionAlive(ind, section, generation) {
+    if (ind._destroyed || generation !== (ind._menuGeneration ?? 0))
+        return false;
+    try {
+        return Boolean(section?.box?.get_parent());
+    } catch {
+        return false;
+    }
+}
 
 
 export function addStartupSection(ind, box) {
+        const generation = ind._menuGeneration ?? 0;
         const apps = ind._addSection(box, _('Autostart apps'), _('No entries'),
             {id: 'startup-apps', level: 2});
         const entries = ind._readAutostartEntries();
@@ -17,7 +30,7 @@ export function addStartupSection(ind, box) {
 
         const services = ind._addSection(box, _('User services'), _('Loading…'),
             {id: 'startup-services', level: 2});
-        void ind._fillServices(services);
+        void ind._fillServices(services, generation);
     }
 
 export function makeStartupRow(ind, entry) {
@@ -142,10 +155,18 @@ function buildServiceRow(ind, unit) {
         const btn = ind._makeToggleButton(unit.enabled);
         btn.connect('button-press-event', () => {
             const target = !unit.enabled;
-            void ind._runSystemctl([target ? 'enable' : 'disable', unit.unit])
-                .then(() => {
-                    unit.enabled = target;
-                    ind._syncToggleButton(btn, target);
+            // never flip the switch on a failed systemctl call: the user
+            // would believe the unit changed state when it did not
+            void ind._runSystemctlChecked([target ? 'enable' : 'disable', unit.unit])
+                .then(ok => {
+                    if (ok) {
+                        unit.enabled = target;
+                        ind._syncToggleButton(btn, target);
+                    } else {
+                        Main.notify('ProcMon',
+                            _('Could not %s %s').format(
+                                target ? _('enable') : _('disable'), unit.unit));
+                    }
                 });
             return Clutter.EVENT_STOP;
         });
@@ -153,17 +174,26 @@ function buildServiceRow(ind, unit) {
         return row;
     }
 
-export async function fillServices(ind, section) {
-        const lines = await ind._runSystemctl(['list-unit-files', '--type=service']);
-        const units = parseServiceUnits(lines);
-        if (units.length === 0) {
-            section.hintLabel.text = _('No user services');
-            section.hintLabel.visible = true;
-            return;
+export async function fillServices(ind, section, generation = ind._menuGeneration ?? 0) {
+        try {
+            const lines = await ind._runSystemctl(['list-unit-files', '--type=service']);
+            if (!sectionAlive(ind, section, generation))
+                return;
+            const units = parseServiceUnits(lines);
+            if (units.length === 0) {
+                section.hintLabel.text = _('No user services');
+                section.hintLabel.visible = true;
+                return;
+            }
+            section.hintLabel.visible = false;
+            for (const unit of units) {
+                if (!sectionAlive(ind, section, generation))
+                    return;
+                section.box.add_child(buildServiceRow(ind, unit));
+            }
+        } catch (error) {
+            console.warn(`procmon: services fill failed: ${error}`);
         }
-        section.hintLabel.visible = false;
-        for (const unit of units)
-            section.box.add_child(buildServiceRow(ind, unit));
     }
 
 export function readAutostartEntries(ind) {
@@ -218,6 +248,12 @@ export function runSystemctl(ind, args) {
                 proc.communicate_utf8_async(null, null, (source, result) => {
                     try {
                         const [, stdout] = source.communicate_utf8_finish(result);
+                        // a non-zero exit means the listing failed; treat it
+                        // as empty instead of parsing error output as units
+                        if (source.get_exit_status() !== 0) {
+                            resolve([]);
+                            return;
+                        }
                         resolve(stdout.split('\n').map(l => l.trim()).filter(Boolean));
                     } catch (error) {
                         resolve([]);
@@ -225,6 +261,32 @@ export function runSystemctl(ind, args) {
                 });
             } catch (error) {
                 resolve([]);
+            }
+        });
+    }
+
+// Honest success signal for state-changing calls (enable/disable/stop).
+// wait_check throws on a non-zero exit, so the promise resolves false
+// instead of pretending the unit changed state.
+export function runSystemctlChecked(ind, args) {
+        return new Promise(resolve => {
+            try {
+                const proc = Gio.Subprocess.new(
+                    ['systemctl', '--user', ...args, '--no-pager'],
+                    Gio.SubprocessFlags.STDOUT_SILENCE |
+                        Gio.SubprocessFlags.STDERR_SILENCE);
+                proc.wait_check_async(null, (source, result) => {
+                    try {
+                        source.wait_check_finish(result);
+                        resolve(true);
+                    } catch (error) {
+                        console.warn(`procmon: systemctl ${args.join(' ')} failed: ${error}`);
+                        resolve(false);
+                    }
+                });
+            } catch (error) {
+                console.warn(`procmon: systemctl spawn failed: ${error}`);
+                resolve(false);
             }
         });
     }

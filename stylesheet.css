@@ -513,6 +513,16 @@
     background-color: rgba(53, 132, 228, 0.85);
 }
 
+.procmon-sparkbars-ram {
+    height: 18px;
+    margin-top: 3px;
+    background-color: rgba(51, 209, 122, 0.05);
+}
+
+.procmon-sparkbar-ram {
+    background-color: rgba(51, 209, 122, 0.8);
+}
+
 /* ---- final polish ---- */
 .procmon-dialog-note {
     font-size: 10px;

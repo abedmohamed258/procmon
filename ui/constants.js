@@ -8,6 +8,7 @@ export const FIRST_SAMPLE_MS = 700;
 export const IO_WARMUP_MS = 1000;
 export const EXIT_CHECK_MS = 2000;
 export const TEMPERATURE_CACHE_MS = 5000;
+export const DISK_CACHE_MS = 30000; // statfs is syscall-heavy; 30s is plenty
 export const ALERT_COOLDOWN_MS = 6 * 60 * 60 * 1000;
 export const SPARK_SAMPLES = 60;
 export const SPARKLINE_WIDTH = 120;

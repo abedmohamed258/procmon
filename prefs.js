@@ -102,7 +102,7 @@ export default class ProcmonPreferences extends ExtensionPreferences {
     _addAlertsGroup(page, settings) {
         const group = new Adw.PreferencesGroup({
             title: _('Alerts'),
-            description: _('Threshold notifications shown at most once every 5 minutes per kind.'),
+            description: _('Threshold notifications; escalations (94/97/99%) notify again immediately, repeats are limited to once every 6 hours per kind.'),
         });
         page.add(group);
         this._addSpinRow(group, settings, {

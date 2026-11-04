@@ -1,9 +1,10 @@
 {
   "name": "procmon",
-  "version": "1.0.0",
+  "version": "2.7.0",
   "private": true,
   "description": "اختبارات إضافة GNOME Shell تعمل عبر gjs لا عبر node",
   "scripts": {
-    "test": "gjs -m tests/parsing.test.js"
+    "test": "gjs -m tests/parsing.test.js && gjs -m tests/design-tokens.test.js && gjs -m tests/alerts.test.js && gjs -m tests/supervisor.test.js",
+    "check": "for f in extension.js prefs.js lib/*.js ui/*.js tests/*.js; do node --check \"$f\" || exit 1; done && echo \"check OK\""
   }
 }

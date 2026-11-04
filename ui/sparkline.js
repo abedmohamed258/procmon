@@ -5,8 +5,29 @@ import {SPARK_SAMPLES, percentOf} from './constants.js';
 // The chart is drawn with plain St widgets on purpose: a Cairo surface inside
 // a popup was the one code path that consistently crashed gnome-shell
 // (libmutter segfault) on this box, and a bar strip conveys the same trend.
+// Two rows: tall blue CPU bars, short green RAM bars beneath — both series
+// come from the same sample instants, so the rows stay comparable.
 const BAR_COUNT = 48;
 const BAR_MAX_HEIGHT = 26;
+const RAM_BAR_MAX_HEIGHT = 10;
+
+function buildBarRow(styleClass, barClass, maxHeight) {
+    const bars = new St.BoxLayout({
+        style_class: styleClass,
+        x_expand: true,
+    });
+    const widgets = [];
+    for (let i = 0; i < BAR_COUNT; i++) {
+        const bar = new St.Widget({
+            style_class: barClass,
+            y_align: Clutter.ActorAlign.END,
+        });
+        bar.style = 'height: 1px;';
+        bars.add_child(bar);
+        widgets.push(bar);
+    }
+    return {bars, widgets, maxHeight};
+}
 
 export function addSparkline(ind, content) {
     ind._sparkValue = new St.Label({
@@ -15,37 +36,36 @@ export function addSparkline(ind, content) {
     });
     content.add_child(ind._sparkValue);
 
-    const bars = new St.BoxLayout({
-        style_class: 'procmon-sparkbars',
-        x_expand: true,
-    });
-    ind._sparkBars = [];
-    for (let i = 0; i < BAR_COUNT; i++) {
-        const bar = new St.Widget({
-            style_class: 'procmon-sparkbar',
-            y_align: Clutter.ActorAlign.END,
-        });
-        bar.style = 'height: 1px;';
-        bars.add_child(bar);
-        ind._sparkBars.push(bar);
-    }
-    ind._sparkArea = bars;
-    content.add_child(bars);
+    const cpu = buildBarRow('procmon-sparkbars', 'procmon-sparkbar', BAR_MAX_HEIGHT);
+    const ram = buildBarRow('procmon-sparkbars procmon-sparkbars-ram',
+        'procmon-sparkbar procmon-sparkbar-ram', RAM_BAR_MAX_HEIGHT);
+    ind._sparkBars = cpu.widgets;
+    ind._sparkRamBars = ram.widgets;
+    ind._sparkCpuRow = cpu;
+    ind._sparkRamRow = ram;
+    ind._sparkArea = cpu.bars;
+    content.add_child(cpu.bars);
+    content.add_child(ram.bars);
 }
 
-export function paintSparkline(ind) {
-    const bars = ind._sparkBars;
-    if (!bars)
-        return;
-    const history = ind._cpuHistory.slice(-bars.length);
-    const offset = bars.length - history.length;
+function paintRow(row, history) {
+    const bars = row.widgets;
+    const samples = history.slice(-bars.length);
+    const offset = bars.length - samples.length;
     bars.forEach((bar, index) => {
-        const value = history[index - offset];
+        const value = samples[index - offset];
         const height = Number.isFinite(value)
-            ? Math.max(1, Math.round(value / 100 * BAR_MAX_HEIGHT))
+            ? Math.max(1, Math.round(value / 100 * row.maxHeight))
             : 1;
         bar.style = `height: ${height}px;`;
     });
+}
+
+export function paintSparkline(ind) {
+    if (ind._sparkCpuRow)
+        paintRow(ind._sparkCpuRow, ind._cpuHistory);
+    if (ind._sparkRamRow)
+        paintRow(ind._sparkRamRow, ind._ramHistory);
 }
 
 export function recordSparkSample(ind) {

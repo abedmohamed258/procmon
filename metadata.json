@@ -1,8 +1,8 @@
 {
   "uuid": "procmon@abed.dev",
   "name": "ProcMon",
-  "description": "Panel indicator for processor, temperature and memory usage, with a dashboard menu showing uptime, load, memory, sensors, battery, network and disk rates, top processes, and PSI pressure.",
-  "version": 2,
+  "description": "System monitor for the GNOME panel: CPU, RAM and temperature at a glance, plus a dashboard menu with process lists (safe termination), memory, sensors, battery, network/disk rates, GPU, PSI pressure, startup apps and user services — all sampled asynchronously from /proc and /sys.",
+  "version": 3,
   "shell-version": ["45", "46", "47", "48", "49"],
   "settings-schema": "org.gnome.shell.extensions.procmon",
   "gettext-domain": "procmon@abed.dev"

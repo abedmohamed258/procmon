@@ -304,8 +304,20 @@ msgstr[3] "إنهاء %s (عدد العمليات: %d)"
 msgstr[4] "إنهاء %s (عدد العمليات: %d)"
 msgstr[5] "إنهاء %s (عدد العمليات: %d)"
 
-msgid "Threshold notifications shown at most once every 5 minutes per kind."
-msgstr "تنبيهات العتبة تظهر مرة واحدة على الأكثر كل 5 دقائق لكل نوع."
+msgid "Threshold notifications; escalations (94/97/99%) notify again immediately, repeats are limited to once every 6 hours per kind."
+msgstr "تنبيهات العتبة؛ التصعيد (94/97/99٪) يخطر فورًا مرة أخرى، والتكرارات محدودة بمرة كل 6 ساعات لكل نوع."
+
+msgid "Could not %s %s"
+msgstr "تعذّر %s %s"
+
+msgid "enable"
+msgstr "تفعيل"
+
+msgid "disable"
+msgstr "تعطيل"
+
+msgid "Could not stop %s"
+msgstr "تعذّر إيقاف %s"
 
 msgid "Time left"
 msgstr "الوقت المتبقي"
