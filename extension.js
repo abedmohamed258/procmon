@@ -454,10 +454,14 @@ class ProcMonIndicator extends PanelMenu.Button {
     _paintSparkline() {
         return sparkline.paintSparkline(this);
     }
-    _alertSource() {
+    _getAlertSource() {
         if (!this._alertSource) {
-            this._alertSource = new MessageTray.Source(_('ProcMon'),
-                'utilities-system-monitor-symbolic');
+            // GNOME 45+: Source takes a params object — positional
+            // (title, iconName) throws "should be an object with properties"
+            this._alertSource = new MessageTray.Source({
+                title: _('ProcMon'),
+                iconName: 'utilities-system-monitor-symbolic',
+            });
             this._alertSource.connect('destroy', () => {
                 this._alertSource = null;
             });
@@ -472,8 +476,12 @@ class ProcMonIndicator extends PanelMenu.Button {
         const {escalated, cooled, shouldNotify} = alertDecision(state, level, now, ALERT_COOLDOWN_MS);
         if (!shouldNotify)
             return;
-        const notif = new MessageTray.Notification(this._alertSource(),
-            _('ProcMon'), message);
+        // GNOME 45+: params object (positional source/title/body throws)
+        const notif = new MessageTray.Notification({
+            source: this._getAlertSource(),
+            title: _('ProcMon'),
+            body: message,
+        });
         notif.addAction(_('Details'), () => {
             const entry = this._alertState.get(kind);
             if (entry)
@@ -481,9 +489,11 @@ class ProcMonIndicator extends PanelMenu.Button {
             this.menu.open();
         });
         this._alertState.set(kind, {level, at: now, acked: false});
-        const source = this._alertSource();
         // the Source API changed across GNOME versions; pick what exists
-        if (typeof source.showNotification === 'function')
+        const source = this._getAlertSource();
+        if (typeof source.addNotification === 'function')
+            source.addNotification(notif);
+        else if (typeof source.showNotification === 'function')
             source.showNotification(notif);
         else if (typeof source.notify === 'function')
             source.notify(notif);
@@ -1369,9 +1379,11 @@ class ProcMonIndicator extends PanelMenu.Button {
             const supervisor = this._supervisorFor(stillRunning);
             if (supervisor?.kind === 'service') {
                 const unit = supervisor.unit;
-                const notif = new MessageTray.Notification(this._alertSource(),
-                    _('ProcMon'),
-                    _('%s restarted — supervised by %s').format(group.name, iso(unit)));
+                const notif = new MessageTray.Notification({
+                    source: this._getAlertSource(),
+                    title: _('ProcMon'),
+                    body: _('%s restarted — supervised by %s').format(group.name, iso(unit)),
+                });
                 notif.addAction(_('Stop %s').format(iso(unit)), () => {
                     void startup.runSystemctlChecked(this, ['stop', unit])
                         .then(ok => {
@@ -1380,8 +1392,10 @@ class ProcMonIndicator extends PanelMenu.Button {
                                     _('Could not stop %s').format(iso(unit)));
                         });
                 });
-                const source = this._alertSource();
-                if (typeof source.showNotification === 'function')
+                const source = this._getAlertSource();
+                if (typeof source.addNotification === 'function')
+                    source.addNotification(notif);
+                else if (typeof source.showNotification === 'function')
                     source.showNotification(notif);
                 else if (typeof source.notify === 'function')
                     source.notify(notif);
@@ -1436,14 +1450,21 @@ class ProcMonIndicator extends PanelMenu.Button {
         this._cancellable.cancel();
         // the notification source outlives the indicator by design (alerts
         // fire while the panel is up), but disabling must not orphan it —
-        // otherwise every enable cycle leaks one more tray source
+        // otherwise every enable cycle leaks one more tray source. The
+        // Source API changed across shells: prefer destroy(reason), fall
+        // back to emitting the signal the tray listens for.
         if (this._alertSource) {
             const source = this._alertSource;
             this._alertSource = null;
             try {
-                source.destroy();
+                if (typeof source.destroy === 'function') {
+                    source.destroy(
+                        MessageTray.NotificationDestroyedReason?.DISMISSED ?? 2);
+                } else if (typeof source.emit === 'function') {
+                    source.emit('destroy', 2);
+                }
             } catch (error) {
-                console.warn(`procmon: alert source cleanup: ${error}`);
+                console.warn(`procmon: alert source cleanup: ${error.stack ?? error}`);
             }
         }
         if (this._settingsSignalId) {

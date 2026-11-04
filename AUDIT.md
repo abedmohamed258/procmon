@@ -35,6 +35,27 @@ Method: code read (all 4,476 lines), `gjs` test run, `journalctl /usr/bin/gnome-
 
 ## Round 3 (v2.9.0 — panel colours, diagnostics, import hygiene)
 
+Hotfix v2.9.1 — **smart alerts were never working on GNOME 45+**:
+- `new MessageTray.Source(title, iconName)` (positional) throws on 45+
+  ("should be an object with properties to set"). The throw was swallowed by
+  _refreshDiskUsage's try/catch, so alerts silently fell back to Main.notify
+  (banner, but no Details action, no tray source) and disable() tried to
+  call `.destroy()` on the unwrapped prototype METHOD (property/method name
+  collision `_alertSource`) — "source.destroy is not a function".
+- Same for `new MessageTray.Notification(source, title, body)` — now the
+  45+ params-object form `{source, title, body}` in both alert sites.
+- Delivery: `source.notify()`/`showNotification()` were removed in 45+ —
+  the chain now prefers `source.addNotification()` with the old names as
+  fallbacks (verified against libshell-14.so messageTray.js source).
+- `_alertSource()` renamed `_getAlertSource()` to end the property/method
+  name collision; destroy() passes an explicit reason with a typeof guard
+  and an emit('destroy') fallback.
+- **Deploy lesson**: `disable/enable` does NOT reload changed JS modules in
+  the running shell (ESM cache) — only CSS. JS changes need a shell restart
+  (`killall gnome-shell` on X11) before journal verification means
+  anything. Earlier "clean journal" checks in this repo's history were
+  measuring the cached old code.
+
 - **Panel per-item labels with attention colours**: each of CPU/temp/RAM is
   its own label, coloured by a pure tested helper (`panelLevel` in
   ui/constants.js, warn/crit thresholds, + tests/panel-level.test.js, 11 =
