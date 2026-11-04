@@ -33,6 +33,14 @@ Method: code read (all 4,476 lines), `gjs` test run, `journalctl /usr/bin/gnome-
 13. `metadata.json` description lists the v1 feature set (no Startup, no alerts, no PSI/sensors detail).
 14. Arabic po: 109 msgids, 4 untranslated — good, but new strings must keep it that way.
 
+## Round 6 (v3.2.0 — release engineering)
+
+- Release automation: `.github/workflows/release.yml` (tag → tests → pack
+  asserts → `gh release` with the zip, verified zip manifest).
+- `CHANGELOG.md` (v2.7.0 → v3.1.0 from git history) linked from README.
+- CI badge in README; short Arabic section (install + summary).
+- Test-count strings synced to 114 everywhere (grep-verified).
+
 ## Round 5 (v3.1.0 — menu redesign)
 
 - Flattened hierarchy: level-2 subsections dropped their card frames for a

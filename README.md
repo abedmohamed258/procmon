@@ -4,6 +4,8 @@
 
 # ProcMon
 
+![tests](https://github.com/abedmohamed258/procmon/actions/workflows/tests.yml/badge.svg)
+
 A system monitor for the GNOME top panel — CPU, RAM and temperature at a
 glance, with a dashboard menu for everything else. Fully async sampling from
 `/proc` and `/sys`, no external dependencies, GNOME Shell 45–49 (X11 and
@@ -11,6 +13,7 @@ Wayland), English + Arabic.
 
 The visual identity (mark, colour, type, controls) is specified in
 [`DESIGN.md`](DESIGN.md) — one idea: *the pulse of the machine*.
+Release history: [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Features
 
@@ -81,3 +84,17 @@ accent-only literal colours), `assets/procmon.svg` (the brand mark).
 ## License
 
 GPL-2.0-or-later. See `LICENSE`.
+
+## العربية (باختصار)
+
+راقب النظام من شريط GNOME العلوي: CPU وRAM والحرارة في اللوحة، ولوحة
+تحكم كاملة في القائمة (عمليات مع إنهاء آمن، مستشعرات، GPU، ضغط PSI،
+تطبيقات الإقلاع وخدمات systemd)، وتنبيهات ذكية، بناءً على /proc و/sys
+من غير أي اعتماديات. الواجهة بالإنجليزي والعربي، والتنصيب والتطوير
+مكتوبان بالأعلى.
+
+```bash
+cd ~/.local/share/gnome-shell/extensions
+unzip procmon@abed.dev.zip -d procmon@abed.dev
+gnome-extensions enable procmon@abed.dev
+```

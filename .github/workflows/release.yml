@@ -1,0 +1,31 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install gjs and node
+        run: sudo apt-get update && sudo apt-get install -y gjs nodejs npm zip
+      - name: Run tests (114 checks)
+        run: npm test
+      - name: Syntax check every JS file
+        run: npm run check
+      - name: Validate metadata and schema
+        run: |
+          python3 -m json.tool metadata.json > /dev/null
+          python3 -m json.tool package.json > /dev/null
+          glib-compile-schemas --strict schemas/
+      - name: Pack the shippable zip
+        run: bash scripts/pack.sh
+      - name: Create the GitHub release with the zip attached
+        run: gh release create "$GITHUB_REF_NAME" procmon@abed.dev.zip --title "ProcMon $GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install gjs and node
         run: sudo apt-get update && sudo apt-get install -y gjs nodejs npm
-      - name: Run tests (94 checks)
+      - name: Run tests (114 checks)
         run: npm test
       - name: Syntax check every JS file
         run: npm run check
