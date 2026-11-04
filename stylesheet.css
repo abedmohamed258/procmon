@@ -76,13 +76,9 @@
     icon-size: 16px;
 }
 
-.procmon-header-btn {
-    border-radius: 6px;
-    padding: 3px;
-}
-
-.procmon-header-btn:hover {
-    background-color: rgba(255, 255, 255, 0.08);
+/* ---- footer icon-only button ---- */
+.procmon-footer-icon-btn {
+    min-width: 36px;
 }
 
 .procmon-meta {
@@ -279,7 +275,7 @@
     font-size: 11px;
     font-weight: bold;
     font-feature-settings: "tnum";
-    min-width: 46px;
+    min-width: 52px;
     text-align: right;
 }
 
@@ -426,7 +422,7 @@
 }
 
 .procmon-group-body {
-    padding: 0px 6px 6px;
+    padding: 0px 6px 8px;
     spacing: 2px;
 }
 

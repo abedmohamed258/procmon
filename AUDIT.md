@@ -33,6 +33,16 @@ Method: code read (all 4,476 lines), `gjs` test run, `journalctl /usr/bin/gnome-
 13. `metadata.json` description lists the v1 feature set (no Startup, no alerts, no PSI/sensors detail).
 14. Arabic po: 109 msgids, 4 untranslated — good, but new strings must keep it that way.
 
+## Round 7 (v3.3.0 — controls consolidation)
+
+- Prefs gear moved OUT of the header INTO the footer as an icon-only third
+  button (aria name "Preferences") — all controls live in one bottom
+  toolbar; the header is brand-only (mark + title).
+- Measurements: process value column 46→52px, fade 120→100ms (snappier),
+  group-body bottom padding 6→8px.
+- Dead `.procmon-header-btn` rule and duplicated `.procmon-footer` block
+  removed.
+
 ## Round 6 (v3.2.0 — release engineering)
 
 - Release automation: `.github/workflows/release.yml` (tag → tests → pack

@@ -75,7 +75,7 @@ export function toggleGroup(ind, group) {
         if (group.open) {
             group.box.opacity = 0;
             group.box.ease({
-                duration: 120,
+                duration: 100,
                 mode: Clutter.AnimationMode.EASE_OUT_CUBIC,
                 opacity: 255,
             });
@@ -173,7 +173,7 @@ export function toggleSection(ind, section) {
             section.box.visible = true;
             section.box.opacity = 0;
             section.box.ease({
-                duration: 120,
+                duration: 100,
                 mode: Clutter.AnimationMode.EASE_OUT_CUBIC,
                 opacity: 255,
             });
@@ -262,6 +262,23 @@ function buildRefreshButton(ind) {
         return refreshBtn;
     }
 
+function buildPrefsButton(ind) {
+        // icon-only: the three footer buttons share one equal toolbar, and
+        // words would squeeze the much longer "Open System Monitor" label
+        const prefsBtn = new St.Button({
+            style_class: 'procmon-footer-btn procmon-footer-icon-btn',
+            can_focus: true,
+            child: new St.Icon({
+                icon_name: 'emblem-system-symbolic',
+                style_class: 'procmon-footer-icon',
+                y_align: Clutter.ActorAlign.CENTER,
+            }),
+        });
+        prefsBtn.accessible_name = _('Preferences');
+        prefsBtn.connect('clicked', () => ind._openPrefs());
+        return prefsBtn;
+    }
+
 function buildFooter(ind) {
         const footerItem = new PopupMenu.PopupBaseMenuItem({
             reactive: false,
@@ -271,6 +288,7 @@ function buildFooter(ind) {
         const footer = new St.BoxLayout({style_class: 'procmon-footer'});
         footer.add_child(buildOpenButton(ind));
         footer.add_child(buildRefreshButton(ind));
+        footer.add_child(buildPrefsButton(ind));
         footerItem.add_child(footer);
         return footerItem;
     }
@@ -373,18 +391,6 @@ export function addHeader(ind, content) {
             style_class: 'procmon-title',
             y_align: Clutter.ActorAlign.CENTER,
         }));
-        const prefsBtn = new St.Button({
-            style_class: 'procmon-header-btn',
-            can_focus: true,
-            child: new St.Icon({
-                icon_name: 'emblem-system-symbolic',
-                style_class: 'procmon-header-icon',
-                y_align: Clutter.ActorAlign.CENTER,
-            }),
-        });
-        prefsBtn.accessible_name = _('Preferences');
-        prefsBtn.connect('clicked', () => ind._openPrefs());
-        header.add_child(prefsBtn);
         header.add_child(new St.Widget({x_expand: true}));
         content.add_child(header);
 

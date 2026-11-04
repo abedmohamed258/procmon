@@ -46,9 +46,9 @@ subtle on both themes. Warn/crit text colours are chosen to read on light
 
 - 4px rhythm everywhere; content width 352px, 10px padding.
 - Radii: cards 10 · groups 10 · sections 9 · rows 6 · pills 10–11.
-- Bars: 3px tall, 250ms colour transition. Section open/close: 120ms
+- Bars: 3px tall, 250ms colour transition. Section open/close: 100ms
   `EASE_OUT_CUBIC` opacity fade, no layout jump.
-- Fixed columns in process rows (value 46px, right-aligned) so numbers
+- Fixed columns in process rows (value 52px, right-aligned) so numbers
   never jitter between samples.
 
 ## 5. Controls
@@ -57,7 +57,9 @@ subtle on both themes. Warn/crit text colours are chosen to read on light
 | ------------- | ------------------------------------------------------------------ |
 | Kill (×)      | Ghost circle, fixed 20–22px slot; transparent → red tint on hover  |
 | On/Off toggle | Pill, min 34px; green tint when On, neutral wash when Off          |
-| Footer buttons| 8px radius, subtle wash + border; hover brightens, press darkens  |
+| Footer buttons| one bottom toolbar: Open System Monitor + Refresh (labelled,
+  x_expand pair) + Preferences gear (icon-only, aria name). Controls live
+  in the footer, never scattered in the header. Header is brand-only. |
 | Group headers | Full-row buttons (consume the press so the menu stays open)        |
 | Chevrons      | ▾ open / ▸ closed, 11px, opacity 0.65                              |
 
