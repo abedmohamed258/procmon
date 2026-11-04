@@ -26,9 +26,12 @@ function check(name, cond) {
 
 check('cpu accent present', css.includes('rgba(53, 132, 228'));
 check('ram accent present', css.includes('rgba(51, 209, 122'));
-check('primary text present', css.includes('rgba(255, 255, 255, 0.96)'));
-check('sparkline class present', css.includes('.procmon-sparkline'));
-check('sparkline min-height 40px', css.includes('min-height: 40px'));
+// foreground must be theme-inherited: hardcoded white text is invisible on
+// a light GNOME theme, so assert its absence instead of its presence
+// (anchored to line start so background-color: washes don't count)
+check('no hardcoded white text', !/^\s+color:\s*rgba\(255,\s*255,\s*255/m.test(css));
+check('sparkbars class present', css.includes('.procmon-sparkbars'));
+check('ram spark row present', css.includes('.procmon-sparkbar-ram'));
 check('card-value class present', css.includes('.procmon-card-value'));
 check('card-value font-size 16px', css.includes('font-size: 16px'));
 check('warn accent present', css.includes('rgba(255, 190, 111'));

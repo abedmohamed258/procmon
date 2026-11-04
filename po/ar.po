@@ -1,7 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: procmon 1.0\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: https://github.com/abedmohamed258/procmon/issues\n"
+"POT-Creation-Date: 2026-11-04 00:00+0200\n"
 "PO-Revision-Date: 2026-11-01 14:03+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -12,6 +13,7 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
 
+#: ui/renderers.js:49
 msgid "%s process"
 msgid_plural "%s processes"
 msgstr[0] "لا عمليات"
@@ -21,6 +23,7 @@ msgstr[3] "%s عمليات"
 msgstr[4] "%s عملية"
 msgstr[5] "%s عملية"
 
+#: extension.js:1388
 msgid "%s process is still running"
 msgid_plural "%s processes are still running"
 msgstr[0] "لم يبقَ أي عملية قيد التشغيل"
@@ -30,6 +33,7 @@ msgstr[3] "%s عمليات ما تزال قيد التشغيل"
 msgstr[4] "%s عملية ما تزال قيد التشغيل"
 msgstr[5] "%s عملية ما تزال قيد التشغيل"
 
+#: extension.js:1341
 msgid "%s process not signaled"
 msgid_plural "%s processes not signaled"
 msgstr[0] "لم تُرسَل الإشارة إلى أي عملية"
@@ -39,262 +43,7 @@ msgstr[3] "لم تُرسَل الإشارة إلى %s عمليات"
 msgstr[4] "لم تُرسَل الإشارة إلى %s عملية"
 msgstr[5] "لم تُرسَل الإشارة إلى %s عملية"
 
-msgid "Alerts"
-msgstr "التنبيهات"
-
-msgid "Available %s"
-msgstr "المتاح %s"
-
-msgid "Battery"
-msgstr "البطارية"
-
-msgid "Buffers %s"
-msgstr "المخازن المؤقتة %s"
-
-msgid "CPU"
-msgstr "المعالج"
-
-msgid "CPU cores and frequencies"
-msgstr "أنوية المعالج وتردداته"
-
-msgid "CPU usage"
-msgstr "استخدام المعالج"
-
-msgid "Cached %s"
-msgstr "مُخزَّن مؤقتًا %s"
-
-msgid "Cancel"
-msgstr "إلغاء"
-
-msgid "Charge"
-msgstr "الشحن"
-
-msgid "Charging"
-msgstr "جارٍ الشحن"
-
-msgid "Confirm before terminating processes"
-msgstr "التأكيد قبل إنهاء العمليات"
-
-msgid "Cores %s"
-msgstr "الأنوية %s"
-
-msgid "Could not open System Monitor"
-msgstr "تعذّر فتح مراقب النظام"
-
-msgid "Could not terminate %s"
-msgstr "تعذّر إنهاء %s"
-
-msgid "Did not terminate"
-msgstr "لم يكتمل الإنهاء"
-
-msgid "Discharging"
-msgstr "جارٍ التفريغ"
-
-msgid "Disk"
-msgstr "القرص"
-
-msgid "Disk %.0f%% full"
-msgstr "القرص امتلأ بنسبة %.0f%%"
-
-msgid "Disk alert (%)"
-msgstr "تنبيه القرص (%)"
-
-msgid "Disk usage"
-msgstr "استخدام الأقراص"
-
-msgid "Each toggle adds or removes a section of the open menu."
-msgstr "كل مفتاح يضيف أو يحذف قسمًا من القائمة المفتوحة."
-
-msgid "Fans"
-msgstr "المراوح"
-
-msgid "Force kill"
-msgstr "إنهاء قسري"
-
-msgid "Frequencies %s"
-msgstr "الترددات %s"
-
-msgid "Fully charged"
-msgstr "اكتمل الشحن"
-
-msgid "General"
-msgstr "عام"
-
-msgid "Graphics"
-msgstr "الرسوميات"
-
-msgid "How many highest-usage processes each of the two lists shows. 3–20."
-msgstr "كم عملية ذات أعلى استخدام تُعرض في كل من القائمتين. 3–20."
-
-msgid "How often /proc samples update the panel label. 500–10000."
-msgstr "كم مرة تُحدِّث عيّنات fproc تسمية الشريط. 500–10000."
-
-msgid ""
-"How often sensor sweeps and process scans run while the menu is open. 1000–"
-"30000."
-msgstr ""
-"كم مرة تجري مسوحات المستشعرات وفحوص العمليات والقائمة مفتوحة. 1000–30000."
-
-msgid "I/O"
-msgstr "الإدخال/الإخراج"
-
-msgid "Load %s"
-msgstr "الحمل %s"
-
-msgid "Memory"
-msgstr "الذاكرة"
-
-msgid "Memory %.0f%% — almost full"
-msgstr "الذاكرة %.0f%% — على وشك الامتلاء"
-
-msgid "Memory alert (%)"
-msgstr "تنبيه الذاكرة (%)"
-
-msgid "Memory details"
-msgstr "تفاصيل الذاكرة"
-
-msgid "Memory usage"
-msgstr "استخدام الذاكرة"
-
-msgid "Menu refresh (ms)"
-msgstr "تحديث القائمة (م ث)"
-
-msgid "Network"
-msgstr "الشبكة"
-
-msgid "Network rates"
-msgstr "سرعات الشبكة"
-
-msgid "No GPU sensors"
-msgstr "لا توجد مستشعرات رسوميات"
-
-msgid "No battery"
-msgstr "لا توجد بطارية"
-
-msgid "No data"
-msgstr "لا توجد بيانات"
-
-msgid "No fan sensors"
-msgstr "لا توجد مستشعرات مراوح"
-
-msgid "No filesystems"
-msgstr "لا توجد أنظمة ملفات"
-
-msgid "No network interfaces"
-msgstr "لا توجد واجهات شبكة"
-
-msgid "No sample"
-msgstr "لا توجد عيّنة"
-
-msgid "No temperature sensors"
-msgstr "لا توجد مستشعرات حرارة"
-
-msgid "No voltage sensors"
-msgstr "لا توجد مستشعرات جهد"
-
-msgid "Not your process"
-msgstr "ليست من عملياتك"
-
-msgid "Notify when RAM usage goes above this percent. 0 disables it. 0–100."
-msgstr "التنبيه عندما يتجاوز استخدام الذاكرة هذه النسبة. 0 يعطّله. 0–100."
-
-msgid ""
-"Notify when the fullest mounted filesystem goes above this percent. 0 "
-"disables it. 0–100."
-msgstr ""
-"التنبيه عندما يتجاوز أعلى نظام ملفات مركّب امتلاءً هذه النسبة. 0 يعطّله. 0–100."
-
-msgid ""
-"Notify when the hottest sensor goes above this value. 0 disables it. 0–120."
-msgstr "تنبيه عند تجاوز أشد المستشعرات سخونة لهذه القيمة. 0 يعطّله. 0–120."
-
-msgid "Open System Monitor"
-msgstr "افتح مراقب النظام"
-
-msgid "Panel"
-msgstr "الشريط"
-
-msgid "Panel refresh (ms)"
-msgstr "تحديث الشريط (م ث)"
-
-msgid "Power now"
-msgstr "القدرة الآن"
-
-msgid "Pressure"
-msgstr "الضغط"
-
-msgid "Pressure (PSI)"
-msgstr "الضغط (PSI)"
-
-msgid "Pressure data unavailable"
-msgstr "بيانات الضغط غير متاحة"
-
-msgid "ProcMon"
-msgstr "ProcMon"
-
-msgid "Process exited"
-msgstr "خرجت العملية"
-
-msgid "Process identity changed"
-msgstr "تغيّرت هوية العملية"
-
-msgid "Processor"
-msgstr "المعالج"
-
-msgid "Protected process"
-msgstr "عملية محمية"
-
-msgid "RAM"
-msgstr "الذاكرة"
-
-msgid "Refresh"
-msgstr "تحديث"
-
-msgid "Rows in each process list"
-msgstr "صفوف كل قائمة عمليات"
-
-msgid "Safety"
-msgstr "الأمان"
-
-msgid "Sections"
-msgstr "الأقسام"
-
-msgid "Send SIGKILL to “%s” (%s processes)?"
-msgstr "إرسال SIGKILL إلى «%s» (عدد العمليات: %s)؟"
-
-msgid "Send SIGTERM to “%s” (%s processes)?"
-msgstr "إرسال SIGTERM إلى «%s» (عدد العمليات: %s)؟"
-
-msgid "Show sparkline"
-msgstr "إظهار المخطط المصغّر"
-
-msgid "Signal failed"
-msgstr "فشل إرسال الإشارة"
-
-msgid "Swap %s / %s"
-msgstr "مبادلة %s من %s"
-
-msgid "Swap not in use"
-msgstr "لا مبادلة قيد الاستخدام"
-
-msgid "System monitor"
-msgstr "مراقب النظام"
-
-msgid "Temperature"
-msgstr "الحرارة"
-
-msgid "Temperature %.0f°C — throttle risk"
-msgstr "حرارة %.0f°م — خطر تقنين الأداء"
-
-msgid "Temperature alert (°C)"
-msgstr "تنبيه الحرارة (°م)"
-
-msgid "Temperatures"
-msgstr "الحرارة"
-
-msgid "Terminate"
-msgstr "إنهاء"
-
+#: ui/rows.js:183
 msgid "Terminate %s (%d process)"
 msgid_plural "Terminate %s (%d processes)"
 msgstr[0] "إنهاء %s (عدد العمليات: %d)"
@@ -304,69 +53,534 @@ msgstr[3] "إنهاء %s (عدد العمليات: %d)"
 msgstr[4] "إنهاء %s (عدد العمليات: %d)"
 msgstr[5] "إنهاء %s (عدد العمليات: %d)"
 
-msgid "Threshold notifications; escalations (94/97/99%) notify again immediately, repeats are limited to once every 6 hours per kind."
-msgstr "تنبيهات العتبة؛ التصعيد (94/97/99٪) يخطر فورًا مرة أخرى، والتكرارات محدودة بمرة كل 6 ساعات لكل نوع."
+#: extension.js:1385
+msgid "%s is supervised by %s"
+msgstr "%s تحت إشراف %s"
 
+#: extension.js:1369
+msgid "%s restarted — supervised by %s"
+msgstr "أُعيد تشغيل %s — تحت إشراف %s"
+
+#: prefs.js:104
+msgid "Alerts"
+msgstr "التنبيهات"
+
+#: ui/startup.js:24
+msgid "Autostart apps"
+msgstr "تطبيقات الإقلاع"
+
+#: ui/renderers.js:256
+msgid "Available"
+msgstr "المتاح"
+
+#: extension.js:1051
+msgid "Battery"
+msgstr "البطارية"
+
+#: ui/renderers.js:260
+msgid "Buffers"
+msgstr "المخازن المؤقتة"
+
+#: ui/constants.js:20
+msgid "CPU"
+msgstr "المعالج"
+
+#: prefs.js:13
+msgid "CPU cores and frequencies"
+msgstr "أنوية المعالج وتردداته"
+
+#: prefs.js:26
+msgid "CPU usage"
+msgstr "استخدام المعالج"
+
+#: ui/renderers.js:258
+msgid "Cached"
+msgstr "المخزّن مؤقتًا"
+
+#: extension.js:1205
+msgid "Cancel"
+msgstr "إلغاء"
+
+#: ui/constants.js:30
+msgid "Charging"
+msgstr "جارٍ الشحن"
+
+#: prefs.js:142
+msgid "Confirm before terminating processes"
+msgstr "التأكيد قبل إنهاء العمليات"
+
+#: ui/renderers.js:52
+msgid "Cores %s"
+msgstr "الأنوية %s"
+
+#: ui/startup.js:167
 msgid "Could not %s %s"
 msgstr "تعذّر %s %s"
 
-msgid "enable"
-msgstr "تفعيل"
+#: extension.js:1414
+msgid "Could not open System Monitor"
+msgstr "تعذّر فتح مراقب النظام"
 
-msgid "disable"
-msgstr "تعطيل"
-
+#: extension.js:1375
 msgid "Could not stop %s"
 msgstr "تعذّر إيقاف %s"
 
+#: extension.js:1309
+msgid "Could not terminate %s"
+msgstr "تعذّر إنهاء %s"
+
+#: extension.js:472
+msgid "Details"
+msgstr "التفاصيل"
+
+#: extension.js:1384
+msgid "Did not terminate"
+msgstr "لم يكتمل الإنهاء"
+
+#: ui/constants.js:31
+msgid "Discharging"
+msgstr "جارٍ التفريغ"
+
+#: ui/cards.js:38
+msgid "Disk"
+msgstr "القرص"
+
+#: extension.js:538
+msgid "Disk %.0f%% full"
+msgstr "القرص امتلأ بنسبة %.0f%%"
+
+#: prefs.js:119
+msgid "Disk alert (%)"
+msgstr "تنبيه القرص (%)"
+
+#: prefs.js:20
+msgid "Disk usage"
+msgstr "استخدام الأقراص"
+
+#: prefs.js:128
+msgid "Each toggle adds or removes a section of the open menu."
+msgstr "كل مفتاح يضيف أو يحذف قسمًا من القائمة المفتوحة."
+
+#: prefs.js:16
+msgid "Fans"
+msgstr "المراوح"
+
+#: extension.js:1208
+msgid "Force kill"
+msgstr "إنهاء قسري"
+
+#: ui/constants.js:32
+msgid "Fully charged"
+msgstr "اكتمل الشحن"
+
+#: ui/sections.js:346
+msgid "GPU"
+msgstr "وحدة معالجة الرسومات"
+
+#: prefs.js:46
+msgid "General"
+msgstr "عام"
+
+#: prefs.js:21
+msgid "Graphics"
+msgstr "الرسوميات"
+
+#: prefs.js:60
+msgid "How many highest-usage processes each of the two lists shows. 3–20."
+msgstr "كم عملية ذات أعلى استخدام تُعرض في كل من القائمتين. 3–20."
+
+#: prefs.js:50
+msgid "How often /proc samples update the panel label. 500–10000."
+msgstr "كم مرة تُحدِّث عيّنات fproc تسمية الشريط. 500–10000."
+
+#: prefs.js:55
+msgid ""
+"How often sensor sweeps and process scans run while the menu is open. 1000–"
+"30000."
+msgstr "عدد مرات مسح المستشعرات وفحص العمليات أثناء فتح القائمة. 1000–30000."
+"كم مرة تجري مسوحات المستشعرات وفحوص العمليات والقائمة مفتوحة. 1000–30000."
+
+#: ui/constants.js:22
+msgid "I/O"
+msgstr "الإدخال/الإخراج"
+
+#: ui/renderers.js:290
+msgid "Level"
+msgstr "المستوى"
+
+#: ui/renderers.js:47
+msgid "Load %s"
+msgstr "الحمل %s"
+
+#: ui/startup.js:31
+msgid "Loading…"
+msgstr "جارٍ التحميل…"
+
+#: ui/cards.js:46
+msgid "Memory"
+msgstr "الذاكرة"
+
+#: extension.js:510
+msgid "Memory %.0f%% — almost full"
+msgstr "الذاكرة %.0f%% — على وشك الامتلاء"
+
+#: prefs.js:114
+msgid "Memory alert (%)"
+msgstr "تنبيه الذاكرة (%)"
+
+#: prefs.js:14
+msgid "Memory details"
+msgstr "تفاصيل الذاكرة"
+
+#: prefs.js:28
+msgid "Memory usage"
+msgstr "استخدام الذاكرة"
+
+#: prefs.js:54
+msgid "Menu refresh (ms)"
+msgstr "تحديث القائمة (م ث)"
+
+#: ui/sections.js:339
+msgid "Network"
+msgstr "الشبكة"
+
+#: prefs.js:19
+msgid "Network rates"
+msgstr "سرعات الشبكة"
+
+#: ui/sections.js:347
+msgid "No GPU sensors"
+msgstr "لا توجد مستشعرات رسوميات"
+
+#: extension.js:1051
+msgid "No battery"
+msgstr "لا توجد بطارية"
+
+#: extension.js:1038
+msgid "No data"
+msgstr "لا توجد بيانات"
+
+#: ui/startup.js:24
+msgid "No entries"
+msgstr "لا إدخالات"
+
+#: ui/sections.js:331
+msgid "No fan sensors"
+msgstr "لا توجد مستشعرات مراوح"
+
+#: ui/sections.js:343
+msgid "No filesystems"
+msgstr "لا توجد أنظمة ملفات"
+
+#: ui/sections.js:340
+msgid "No network interfaces"
+msgstr "لا توجد واجهات شبكة"
+
+#: extension.js:1020
+msgid "No process data yet"
+msgstr "لا بيانات للعمليات بعد"
+
+#: ui/sections.js:329
+msgid "No temperature sensors"
+msgstr "لا توجد مستشعرات حرارة"
+
+#: ui/startup.js:184
+msgid "No user services"
+msgstr "لا خدمات مستخدم"
+
+#: ui/sections.js:333
+msgid "No voltage sensors"
+msgstr "لا توجد مستشعرات جهد"
+
+#: extension.js:65
+msgid "Not your process"
+msgstr "ليست من عملياتك"
+
+#: prefs.js:115
+msgid "Notify when RAM usage goes above this percent. 0 disables it. 0–100."
+msgstr "التنبيه عندما يتجاوز استخدام الذاكرة هذه النسبة. 0 يعطّله. 0–100."
+
+#: prefs.js:120
+msgid ""
+"Notify when the fullest mounted filesystem goes above this percent. 0 "
+"disables it. 0–100."
+msgstr "إخطار عند تجاوز أكثر أنظمة الملفات امتلاءً لهذه النسبة. 0 لتعطيله. 0–100."
+"التنبيه عندما يتجاوز أعلى نظام ملفات مركّب امتلاءً هذه النسبة. 0 يعطّله. 0–100."
+
+#: prefs.js:110
+msgid ""
+"Notify when the hottest sensor goes above this value. 0 disables it. 0–120."
+msgstr "تنبيه عند تجاوز أشد المستشعرات سخونة لهذه القيمة. 0 يعطّله. 0–120."
+
+#: ui/startup.js:66
+msgid "Off"
+msgstr "إيقاف"
+
+#: ui/startup.js:66
+msgid "On"
+msgstr "تشغيل"
+
+#: ui/sections.js:222
+msgid "Open System Monitor"
+msgstr "افتح مراقب النظام"
+
+#: prefs.js:67
+msgid "Panel"
+msgstr "الشريط"
+
+#: prefs.js:49
+msgid "Panel refresh (ms)"
+msgstr "تحديث الشريط (م ث)"
+
+#: ui/renderers.js:292
+msgid "Power"
+msgstr "القدرة"
+
+#: extension.js:1063
+msgid "Pressure"
+msgstr "الضغط"
+
+#: prefs.js:22
+msgid "Pressure (PSI)"
+msgstr "الضغط (PSI)"
+
+#: extension.js:1064
+msgid "Pressure data unavailable"
+msgstr "بيانات الضغط غير متاحة"
+
+#: extension.js:454
+msgid "ProcMon"
+msgstr "ProcMon"
+
+#: extension.js:67
+msgid "Process exited"
+msgstr "خرجت العملية"
+
+#: extension.js:66
+msgid "Process identity changed"
+msgstr "تغيّرت هوية العملية"
+
+#: ui/cards.js:45
+msgid "Processor"
+msgstr "المعالج"
+
+#: extension.js:1299
+msgid "Protected process"
+msgstr "عملية محمية"
+
+#: ui/renderers.js:230
+msgid "RAM"
+msgstr "الذاكرة"
+
+#: ui/sections.js:247
+msgid "Refresh"
+msgstr "تحديث"
+
+#: prefs.js:59
+msgid "Rows in each process list"
+msgstr "صفوف كل قائمة عمليات"
+
+#: prefs.js:139
+msgid "Safety"
+msgstr "الأمان"
+
+#: ui/renderers.js:90
+msgid "Sampling…"
+msgstr "جارٍ أخذ العينة…"
+
+#: prefs.js:127
+msgid "Sections"
+msgstr "الأقسام"
+
+#: extension.js:1190
+msgid "Send SIGKILL to “%s” (%s processes)?"
+msgstr "إرسال SIGKILL إلى «%s» (عدد العمليات: %s)؟"
+
+#: extension.js:1191
+msgid "Send SIGTERM to “%s” (%s processes)?"
+msgstr "إرسال SIGTERM إلى «%s» (عدد العمليات: %s)؟"
+
+#: ui/sections.js:298
+msgid "Sensors"
+msgstr "المستشعرات"
+
+#: prefs.js:89
+msgid "Show sparkline"
+msgstr "إظهار المخطط المصغّر"
+
+#: extension.js:205
+msgid "Signal failed"
+msgstr "فشل إرسال الإشارة"
+
+#: extension.js:1200
+msgid "Started by the session — it may be relaunched."
+msgstr "بدأته الجلسة — قد يُعاد تشغيله."
+
+#: ui/sections.js:309
+msgid "Startup"
+msgstr "الإقلاع"
+
+#: extension.js:1370
+msgid "Stop %s"
+msgstr "إيقاف %s"
+
+#: ui/sections.js:302
+msgid "Storage & network"
+msgstr "التخزين والشبكة"
+
+#: extension.js:1199
+msgid "Supervised by %s — it may restart."
+msgstr "تحت إشراف %s — قد يُعاد تشغيله."
+
+#: ui/renderers.js:262
+msgid "Swap"
+msgstr "الذاكرة الافتراضية"
+
+#: extension.js:214
+msgid "System monitor"
+msgstr "مراقب النظام"
+
+#: prefs.js:27
+msgid "Temperature"
+msgstr "الحرارة"
+
+#: extension.js:588
+msgid "Temperature %.0f°C — throttle risk"
+msgstr "حرارة %.0f°م — خطر تقنين الأداء"
+
+#: prefs.js:109
+msgid "Temperature alert (°C)"
+msgstr "تنبيه الحرارة (°م)"
+
+#: prefs.js:15
+msgid "Temperatures"
+msgstr "الحرارة"
+
+#: extension.js:1208
+msgid "Terminate"
+msgstr "إنهاء"
+
+#: prefs.js:105
+msgid ""
+"Threshold notifications; escalations (94/97/99%) notify again immediately, "
+"repeats are limited to once every 6 hours per kind."
+msgstr "تنبيهات العتبة؛ التصعيد (94/97/99٪) يخطر فورًا مرة أخرى، والتكرارات محدودة بمرة كل 6 ساعات لكل نوع."
+"تنبيهات العتبة؛ التصعيد (94/97/99٪) يخطر فورًا مرة أخرى، والتكرارات محدودة "
+"بمرة كل 6 ساعات لكل نوع."
+
+#: ui/renderers.js:294
 msgid "Time left"
 msgstr "الوقت المتبقي"
 
+#: extension.js:1019
+msgid "Top CPU"
+msgstr "أعلى المعالج"
+
+#: extension.js:1027
+msgid "Top memory"
+msgstr "أعلى الذاكرة"
+
+#: prefs.js:12
 msgid "Top processes"
 msgstr "أبرز العمليات"
 
+#: extension.js:69
 msgid "Unknown user identity — termination disabled"
 msgstr "تعذّر تحقّق هوية المستخدم — الإنهاء معطّل"
 
+#: ui/renderers.js:45
 msgid "Up %s"
 msgstr "مدة التشغيل %s"
 
-msgid "Used %s / %s"
-msgstr "المستخدم %s من %s"
+#: extension.js:1038
+msgid "Usage"
+msgstr "الاستخدام"
 
+#: ui/renderers.js:254
+msgid "Used"
+msgstr "المستخدمة"
+
+#: ui/startup.js:31
+msgid "User services"
+msgstr "خدمات المستخدم"
+
+#: ui/renderers.js:106
 msgid "VRAM %s / %s"
 msgstr "ذاكرة الرسوميات %s من %s"
 
+#: ui/sections.js:332
 msgid "Voltage"
 msgstr "الجهد"
 
+#: prefs.js:17
 msgid "Voltages"
 msgstr "الجهد"
 
-msgid "Waiting for the first sample…"
-msgstr "بانتظار أول عيّنة…"
+#: ui/renderers.js:248
+msgid "Waiting for memory sample…"
+msgstr "بانتظار أول عينة للذاكرة…"
 
+#: prefs.js:143
 msgid ""
 "When enabled, a click on the × stops first and asks. SIGTERM requests an "
 "exit; SIGKILL cannot be caught by the process and may lose its data."
-msgstr ""
+msgstr "عند التفعيل، الضغط على × يوقف أولًا ويسأل. SIGTERM يطلب الخروج؛ SIGKILL لا يمكن للعملية اعتراضه وقد تفقد بياناتها."
 "عند التمكين يتوقف النقر على × أولًا ويسأل. SIGTERM يطلب خروجًا؛ SIGKILL لا "
 "يمكن للعملية أن تلتقطه وقد تفقد بياناتها."
 
+#: prefs.js:68
 msgid "Which values the panel indicator shows, picked in this fixed order."
 msgstr "ما القيم التي يعرضها مؤشر الشريط، بالترتيب الثابت هذا."
 
-msgid "avg %s"
-msgstr "المتوسط %s"
+#: ui/startup.js:168
+msgid "disable"
+msgstr "تعطيل"
 
+#: ui/startup.js:168
+msgid "enable"
+msgstr "تفعيل"
+
+#: ui/renderers.js:128
 msgid "full %s"
 msgstr "كامل %s"
 
+#: extension.js:192
 msgid "kill command not found"
 msgstr "أمر kill غير موجود"
 
+#: ui/renderers.js:126
 msgid "some %s"
 msgstr "بعض %s"
 
+#: ui/startup.js:46
+msgid "system"
+msgstr "نظام"
+
+#: ui/startup.js:46
+msgid "user"
+msgstr "مستخدم"
+
+#: ui/renderers.js:88
 msgid "↓ %s · ↑ %s"
 msgstr "↓ %s · ↑ %s"
+
+#~ msgid "Charge"
+#~ msgstr "الشحن"
+
+#~ msgid "Frequencies %s"
+#~ msgstr "الترددات %s"
+
+#~ msgid "No sample"
+#~ msgstr "لا توجد عيّنة"
+
+#~ msgid "Swap %s / %s"
+#~ msgstr "مبادلة %s من %s"
+
+#~ msgid "Swap not in use"
+#~ msgstr "لا مبادلة قيد الاستخدام"
+
+#~ msgid "Used %s / %s"
+#~ msgstr "المستخدم %s من %s"
+
+#~ msgid "avg %s"
+#~ msgstr "المتوسط %s"

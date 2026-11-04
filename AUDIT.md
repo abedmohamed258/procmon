@@ -33,6 +33,25 @@ Method: code read (all 4,476 lines), `gjs` test run, `journalctl /usr/bin/gnome-
 13. `metadata.json` description lists the v1 feature set (no Startup, no alerts, no PSI/sensors detail).
 14. Arabic po: 109 msgids, 4 untranslated — good, but new strings must keep it that way.
 
+## Round 2 (v2.8.0 — light theme + i18n coverage + shipping)
+
+Findings:
+- **Light theme broken**: all text colors were hardcoded `rgba(255,255,255,*)`
+  → invisible on a light GNOME theme. Fix: foreground inherited from the shell
+  theme; opacity dims secondary text. The old design-tokens test asserted the
+  white token (encoded the bug) — replaced with a negative check.
+- **Dead CSS**: `.procmon-sparkline` block unused since the Cairo removal; the
+  tokens test passed only because `min-height: 40px` lived in dead code;
+  duplicate `.procmon-sparkline-value` rules. Cleaned.
+- **Arabic coverage gap**: extractor (`scripts/extract-strings.py`, since GNU
+  xgettext can't parse JS) found 133 msgids vs 113 in ar.po — Startup section
+  + sensors were English-only in Arabic, and 11 fuzzy entries carried wrong
+  leftovers (e.g. "Stop %s" → "مدة التشغيل %s" = uptime; "GPU" → "المعالج" = CPU).
+  Merged POT, translated all 36 (32 + 4 wrapped), zero fuzzy, zero empty.
+- **metadata missing "url"** → extensions.gnome.org uploads need it. Added.
+- Rejected with evidence: halving `_readProcess` file reads (stat-only) —
+  UID still needs /status, memfs reads are negligible next to the risks.
+
 ## Fix plan (v2.7.0 — all shipped + verified 2026-11-04)
 
 Extra find during the round: **P0 shipping bug** — `scripts/pack.sh` never included `ui/` in the zip (broken since the v2.2 split: 16 files, 0 ui/*). Fixed + pack now asserts required/forbidden entries.

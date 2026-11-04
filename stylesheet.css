@@ -1,4 +1,6 @@
-/* ProcMon — dense instrument panel. Alpha tints only; adapts to light/dark.
+/* ProcMon — dense instrument panel. Alpha washes only; FOREGROUND IS
+   INHERITED from the shell theme (never hardcode white text: on a light
+   theme it would be invisible). Opacity dims secondary text in both themes.
    Scale: 4px rhythm · 11px body · 10px labels · tabular numerals everywhere. */
 
 /* ============================================================
@@ -8,8 +10,8 @@
      RAM accent:    rgba(51, 209, 122, *)   #33d17a  (memory)
      Warn:          rgba(255, 190, 111, *)  #ffbe6f  (bars/percent)
      Crit bar:      rgba(230, 97, 0, *)     #e66100
-     Crit text:     rgba(224, 27, 36, *)    #e01b24
-     Primary text:  rgba(255, 255, 255, 0.96)
+     Crit text:     rgba(224, 27, 36, *)    #e01b24  (readable on both)
+     Primary text:  theme foreground (inherited, not hardcoded)
      Secondary lbl: opacity 0.55–0.6
      Tertiary:      opacity 0.45
    Typography:
@@ -68,16 +70,6 @@
     font-feature-settings: "tnum";
 }
 
-/* ---- sparkline ---- */
-.procmon-sparkline {
-    min-height: 40px;
-    border-radius: 8px;
-    background-color: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    padding: 6px;
-    margin-bottom: 4px;
-}
-
 /* ---- summary cards ---- */
 .procmon-cards {
     spacing: 6px;
@@ -107,7 +99,6 @@
     font-size: 16px;
     font-weight: bold;
     font-feature-settings: "tnum";
-    color: rgba(255, 255, 255, 0.96);
 }
 
 .procmon-value-compact {
@@ -238,7 +229,6 @@
 .procmon-line-value {
     font-size: 11px;
     font-feature-settings: "tnum";
-    color: rgba(255, 255, 255, 0.96);
 }
 
 /* ---- process rows: fixed columns so numbers never jitter ---- */
@@ -260,14 +250,13 @@
 
 .procmon-row-name {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.6);
+    opacity: 0.6;
 }
 
 .procmon-row-value {
     font-size: 11px;
     font-weight: bold;
     font-feature-settings: "tnum";
-    color: rgba(255, 255, 255, 0.96);
     min-width: 46px;
     text-align: right;
 }
@@ -307,7 +296,7 @@
     font-size: 11px;
     font-weight: bold;
     text-align: center;
-    color: rgba(255, 255, 255, 0.45);
+    opacity: 0.45;
 }
 
 /* ---- footer actions: one compact toolbar ---- */
@@ -472,7 +461,7 @@
 }
 
 .procmon-toggle-off .procmon-toggle-label {
-    color: rgba(255, 255, 255, 0.55);
+    opacity: 0.55;
 }
 
 .procmon-startup-src {
@@ -482,13 +471,6 @@
     border-radius: 5px;
     background-color: rgba(255, 255, 255, 0.06);
 }
-.procmon-sparkline-value {
-    font-size: 10px;
-    font-feature-settings: "tnum";
-    opacity: 0.8;
-    margin-bottom: 2px;
-}
-
 /* ---- sparkline (pure St bars, no Cairo surface) ---- */
 .procmon-sparkline-value {
     font-size: 10px;
