@@ -30,13 +30,15 @@ Release history: [`CHANGELOG.md`](CHANGELOG.md).
   prevent PID-reuse races, only your own processes can be signaled, and
   supervised processes (systemd services, session apps) say so before you
   kill them — with a one-click "Stop the unit" follow-up if they restart.
-- **Sensors**: CPU cores and frequencies, memory breakdown (used / available
-  / cached / buffers / swap), temperatures, fans, voltages, battery level,
-  power and time left, network and disk rates, GPU usage + VRAM, PSI
-  pressure.
+- **Sensors**: CPU frequencies (average / max / cores), memory breakdown
+  (used / available / cached / buffers / swap), temperatures, fans,
+  voltages, battery level, power and time left, network and disk rates,
+  GPU usage + VRAM, PSI pressure. Load average shows 1m and 5m in the
+  menu header.
 - **Smart alerts**: threshold notifications with escalation (94/97/99%) that
   notify again immediately; repeats are capped at once per 6 hours per kind,
-  and opening the menu acknowledges what you have seen.
+  opening the menu acknowledges what you have seen, and a master kill switch
+  lives in Preferences.
 - **Startup**: autostart apps (user/system) and `systemctl --user` services
   with On/Off toggles that only flip after the underlying call succeeds.
 - **Preferences** built with Adw (no St/Clutter in the prefs process):

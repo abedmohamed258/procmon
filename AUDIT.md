@@ -33,6 +33,20 @@ Method: code read (all 4,476 lines), `gjs` test run, `journalctl /usr/bin/gnome-
 13. `metadata.json` description lists the v1 feature set (no Startup, no alerts, no PSI/sensors detail).
 14. Arabic po: 109 msgids, 4 untranslated — good, but new strings must keep it that way.
 
+## Round 9 (v4.1.0 — features + control placement)
+
+- **Frequencies were collected but never rendered** — new Processor group
+  (show-cpu) with Average/Max/Cores GHz rows; the show-cpu pref was dead
+  until now.
+- Meta line gains 5-minute load. New `alerts-enabled` schema key +
+  prefs master switch + `_maybeAlert` gate.
+- Footer buttons LEFT-aligned at natural width (user: buttons off-center
+  looked wrong); gear icon-only in the same toolbar; chevrons 12px
+  brighter; scroll 460→560px.
+- Another session pushed to GitHub mid-round (SPDX headers, GPL restore,
+  version bumps) — merged via rebase, zero conflicts left.
+- i18n: 150/150 parity, zero fuzzy (two msgmerge fuzzies caught + fixed).
+
 ## Round 8 (v4.0.0 — de-AI redesign, user-feedback driven)
 
 User verdict on the menu: "looks AI-generated — buttons, placement, UI/UX".

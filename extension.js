@@ -499,6 +499,8 @@ class ProcMonIndicator extends PanelMenu.Button {
     }
 
     _maybeAlert(kind, message, level = 1) {
+        if (!this._settings.get_boolean('alerts-enabled'))
+            return;
         const now = GLib.get_monotonic_time() / 1000;
         const state = this._alertState.get(kind) ?? {level: 0, at: 0, acked: false};
         const {escalated, cooled, shouldNotify} = alertDecision(state, level, now, ALERT_COOLDOWN_MS);
@@ -1476,6 +1478,10 @@ class ProcMonIndicator extends PanelMenu.Button {
 
     _renderMemorySection() {
         return renderers.renderMemorySection(this);
+    }
+
+    _renderFrequencies() {
+        return renderers.renderFrequencies(this);
     }
     _renderLineSection(section, entries, rowFor) {
         return renderers.renderLineSection(this, section, entries, rowFor);

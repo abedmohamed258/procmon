@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2026 Abed Mohamed
 
 import * as sparkline from './sparkline.js';
-import {formatBytes, formatDuration, formatRate} from '../lib/proc.js';
+import {averageFrequencyGhz, formatBytes, formatDuration, formatRate} from '../lib/proc.js';
 import {iso, _, _n, MAX_TEMPERATURES, MAX_FILESYSTEMS, PSI_RESOURCES,
     percentOf, parsePanelItems, panelLevel} from './constants.js';
 
@@ -15,6 +15,7 @@ export function renderValues(ind) {
         ind._renderSummaryCards();
         ind._renderProcessRows();
         ind._renderMemorySection();
+        ind._renderFrequencies();
         ind._renderLineSection(ind._ui.temperature, (ind._temperatures ?? [])
             .slice(0, MAX_TEMPERATURES), reading => [
             reading.label,
@@ -47,7 +48,9 @@ export function renderMeta(ind) {
         if (Number.isFinite(sensors.uptime))
             parts.push(_('Up %s').format(iso(formatDuration(sensors.uptime) ?? '—')));
         if (sensors.load)
-            parts.push(_('Load %s').format(iso(sensors.load.one.toFixed(2))));
+            parts.push(_('Load %s (5m %s)').format(
+                iso(sensors.load.one.toFixed(2)),
+                iso(sensors.load.five.toFixed(2))));
         const count = ind._processes.size;
         parts.push(_n('%s process', '%s processes', count).format(iso(count)));
         const coreCount = ind._lastSample?.cores?.size ?? 0;
@@ -383,4 +386,14 @@ export function renderBatterySection(ind) {
     rows.power.value.text = battery.watts !== null ? `${iso(battery.watts)} W` : '—';
     rows.left.name.text = _('Time left');
     rows.left.value.text = battery.minutesLeft !== null ? `${iso(battery.minutesLeft)} min` : '—';
+}
+
+export function renderFrequencies(ind) {
+    const frequencies = ind._sensors?.frequencies ?? [];
+    const entries = frequencies.length > 0 ? [
+        {label: _('Average'), value: `${iso(averageFrequencyGhz(frequencies))} GHz`},
+        {label: _('Max'), value: `${iso((Math.max(...frequencies) / 1e6).toFixed(2))} GHz`},
+        {label: _('Cores'), value: iso(frequencies.length)},
+    ] : [];
+    ind._renderLineSection(ind._ui.frequencies, entries, entry => [entry.label, entry.value]);
 }

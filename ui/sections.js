@@ -13,6 +13,7 @@ function buildGroupHeader(ind, title, options, open) {
         if (options.icon)
             headerRow.add_child(new St.Icon({
                 icon_name: options.icon,
+                fallback_icon_name: 'system-run',
                 style_class: 'procmon-group-icon',
                 y_align: Clutter.ActorAlign.CENTER,
             }));
@@ -215,7 +216,6 @@ function buildOpenButton(ind) {
         const openBtn = new St.Button({
             style_class: 'procmon-footer-btn',
             can_focus: true,
-            x_expand: true,
         });
         const openRow = new St.BoxLayout({vertical: false});
         openRow.add_child(new St.Icon({
@@ -240,7 +240,6 @@ function buildRefreshButton(ind) {
         const refreshBtn = new St.Button({
             style_class: 'procmon-footer-btn',
             can_focus: true,
-            x_expand: true,
         });
         const refreshRow = new St.BoxLayout({vertical: false});
         refreshRow.add_child(new St.Icon({
@@ -311,6 +310,9 @@ function createOptionalGroups(ind, content) {
         if (wantsProc)
             groups.procs = ind._addGroup(content, _('Top processes'),
                 {id: 'processes', icon: 'view-list-symbolic'});
+        if (wants('cpu'))
+            groups.processor = ind._addGroup(content, _('CPU'),
+                {id: 'processor', icon: 'system-run-symbolic'});
         if (wants('memory'))
             groups.memory = ind._addGroup(content, _('Memory'),
                 {id: 'memory', icon: 'media-flash-symbolic'});
@@ -344,6 +346,10 @@ function addOptionalSectionBodies(ind, groups, wants) {
             ind._addTopCpuSection(groups.procs.box);
         if (groups.procs)
             ind._addTopMemSection(groups.procs.box);
+        if (groups.processor)
+            ind._ui.frequencies = ind._addSection(groups.processor.box,
+                _('Frequencies'), _('No frequency data'),
+                {id: 'frequencies', level: 2});
         if (groups.memory)
             ind._addMemorySection(groups.memory.box);
 

@@ -111,6 +111,13 @@ export default class ProcmonPreferences extends ExtensionPreferences {
             description: _('Threshold notifications; escalations (94/97/99%) notify again immediately, repeats are limited to once every 6 hours per kind.'),
         });
         page.add(group);
+        const master = new Adw.SwitchRow({
+            title: _('Show threshold notifications'),
+            subtitle: _('Master switch for all threshold alerts.'),
+        });
+        settings.bind('alerts-enabled', master, 'active',
+            Gio.SettingsBindFlags.DEFAULT);
+        group.add(master);
         this._addSpinRow(group, settings, {
             title: _('Temperature alert (°C)'),
             subtitle: _('Notify when the hottest sensor goes above this value. 0 disables it. 0–120.'),

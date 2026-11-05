@@ -28,6 +28,10 @@
       <default>true</default>
       <summary>Show the CPU/RAM history sparkline in the menu</summary>
     </key>
+    <key name="alerts-enabled" type="b">
+      <default>true</default>
+      <summary>Master switch for threshold notifications</summary>
+    </key>
     <key name="temp-alert-c" type="u">
       <default>0</default>
       <range min="0" max="120"/>
