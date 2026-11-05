@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-FileCopyrightText: 2026 Abed Mohamed
+
 import {formatBytes, formatDuration, formatRate} from '../lib/proc.js';
 import {iso, _, _n, MAX_TEMPERATURES, MAX_FILESYSTEMS, PSI_RESOURCES,
     percentOf, parsePanelItems, panelLevel} from './constants.js';

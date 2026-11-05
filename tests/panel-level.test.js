@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-FileCopyrightText: 2026 Abed Mohamed
+
 // panel-level.test.js — panel attention thresholds (gjs -m)
 import {panelLevel} from '../ui/constants.js';
 

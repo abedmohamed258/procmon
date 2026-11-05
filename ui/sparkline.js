@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-FileCopyrightText: 2026 Abed Mohamed
+
 import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import {SPARK_SAMPLES, percentOf, _} from './constants.js';

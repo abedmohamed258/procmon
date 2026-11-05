@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-FileCopyrightText: 2026 Abed Mohamed
+
 // ProcMon — GNOME Shell system monitor. /proc and /sys are sampled through
 // Gio async calls only; the menu structure is built once per open and updated
 // in place, like the old _updateIoLabels approach. Every visible number goes

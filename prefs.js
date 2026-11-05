@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-FileCopyrightText: 2026 Abed Mohamed
+
 // Preferences dialog. GTK/Adw only — never St or Clutter, so it works inside
 // the standalone prefs process of every supported shell version.
 import Adw from 'gi://Adw';
