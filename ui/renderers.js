@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: 2026 Abed Mohamed
 
+import * as sparkline from './sparkline.js';
 import {formatBytes, formatDuration, formatRate} from '../lib/proc.js';
 import {iso, _, _n, MAX_TEMPERATURES, MAX_FILESYSTEMS, PSI_RESOURCES,
     percentOf, parsePanelItems, panelLevel} from './constants.js';
@@ -83,8 +84,10 @@ export function renderSummaryCards(ind) {
         if (ramNow !== null)
             ind._cardPrev.mem = ramNow;
 
-        if (ind._sparkValue)
-            ind._sparkValue.text = `${iso(Math.round(ind._cpuPercent))}% CPU · ${iso(ind._memory ? Math.round(percentOf(ind._memory.usedMb, ind._memory.totalMb)) : 0)}% RAM`;
+        sparkline.setSparkValue(ind, ind._cpuPercent,
+            ind._memory && ind._memory.totalMb > 0
+                ? percentOf(ind._memory.usedMb, ind._memory.totalMb)
+                : 0);
 
         const third = cards.third;
         third.barBox.visible = cards.thirdKind === 'gpu';
@@ -203,6 +206,64 @@ export function renderSectionSummaries(ind) {
         renderNetworkSummary(ind, ui);
         renderDiskSummary(ind, ui);
         renderGraphicsSummary(ind, ui);
+        // group headers carry a live summary too — an empty right side
+        // reads as broken, a filled one reads as a glanceable instrument
+        const groups = ind._groups ?? {};
+        if (groups.procs) {
+            const first = (ind._processes ?? new Map()).size;
+            ind._setSectionSummary(groups.procs,
+                _n('%s process', '%s processes', first).format(iso(first)));
+        }
+        if (groups.memory) {
+            const memory = ind._memory;
+            if (memory && memory.totalMb > 0)
+                ind._setSectionSummary(groups.memory,
+                    `${iso((memory.usedMb / 1024).toFixed(1))}/${iso((memory.totalMb / 1024).toFixed(1))} GB`);
+        }
+        renderSensorsGroupSummary(ind, groups.sensors);
+        renderStorageGroupSummary(ind, groups.storage);
+        if (groups.graphics) {
+            const gpu = (ind._sensors?.gpus ?? [])[0];
+            if (gpu && gpu.usagePercent !== null)
+                ind._setSectionSummary(groups.graphics, `${iso(gpu.usagePercent)}%`);
+        }
+        renderPressureGroupSummary(ind, groups.psi);
+    }
+
+function renderSensorsGroupSummary(ind, group) {
+        if (!group)
+            return;
+        const temps = ind._temperatures ?? [];
+        if (temps.length > 0) {
+            const hottest = Math.max(...temps.map(t => t.celsius));
+            ind._setSectionSummary(group, `${iso(Math.round(hottest))}°C`);
+        } else if (ind._battery) {
+            ind._setSectionSummary(group, `${iso(ind._battery.percent)}%`);
+        }
+    }
+
+function renderStorageGroupSummary(ind, group) {
+        if (!group)
+            return;
+        const net = ind._ioRates?.net ?? [];
+        if (net.length > 0) {
+            const rx = net.reduce((sum, rate) => sum + (rate.rxPerSecond ?? 0), 0);
+            ind._setSectionSummary(group,
+                `${_('↓ %s').format(iso(formatRate(rx)))}`);
+        } else if ((ind._fsData ?? []).length > 0) {
+            const fullest = (ind._fsData ?? [])
+                .reduce((max, fs) => Math.max(max, fs.percent ?? 0), 0);
+            ind._setSectionSummary(group, `${iso(Math.round(fullest))}%`);
+        }
+    }
+
+function renderPressureGroupSummary(ind, group) {
+        if (!group)
+            return;
+        const psi = ind._sensors?.psi ?? {};
+        const peak = Math.max(0, ...Object.values(psi).map(v => v?.some?.avg10 ?? 0));
+        if (peak > 0)
+            ind._setSectionSummary(group, _('some %s').format(iso(peak.toFixed(2))));
     }
 
 export function renderIo(ind) {

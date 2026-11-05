@@ -38,7 +38,8 @@ subtle on both themes. Warn/crit text colours are chosen to read on light
 
 - Card values: 16px bold, tabular numerals (`tnum`) — the loudest numbers.
 - Row/line values: 11px bold tnum · names 11px · kill pill 11px bold.
-- Titles: 9–10px bold, letter-spacing 0.6px, opacity 0.55 (quiet by design).
+- Titles: section/group titles 11px bold untracked (tool-like);
+  card titles stay 9px tracked kickers (instrument readouts).
 - Group titles: 11.5px bold. Meta line: 10px, opacity 0.6, tnum.
 - Every visible number passes through `iso()` (RTL-safe), never raw.
 
@@ -66,13 +67,16 @@ subtle on both themes. Warn/crit text colours are chosen to read on light
 All interactive rows are `can_focus` and carry accessible names. The kill
 pill is the only red control — red means destructive, always.
 
-## 5b. Menu structure (v3.1.0)
+## 5b. Menu structure (v4.0.0)
 
-- One frame per group — subsections are flat titles separated by a hairline
-  rule, never cards inside cards (first subsection in a group has no rule).
+- **No stacked buttons.** Groups are ruled rows, not rounded card buttons;
+  one hairline per group boundary. Subsections are flat titles with a
+  hairline between them (first in a group exempt). This is the de-AI pass.
+- Every group header carries a live summary (count, GB, °C, %, some) — an
+  empty right side reads as broken.
 - Menu content width 360px; scroll viewport 460px max.
-- The CPU/RAM sparkline carries a colour legend (blue dot = CPU, green dot =
-  RAM) directly above the two bar rows, so a row is never ambiguous.
+- The sparkline value line IS the legend: CPU value in CPU blue, RAM value
+  in readable green (`#1f9d55`) — blue row above, green row below.
 - Card titles gain a trend glyph vs the previous sample (▲ up ≥2pts,
   ▼ down ≥2pts, ● steady) — title text only, layout never shifts.
 

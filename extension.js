@@ -257,7 +257,8 @@ class ProcMonIndicator extends PanelMenu.Button {
                 this._cpuHistory = [];
         this._ramHistory = [];
         this._sparkArea = null;
-        this._sparkValue = null;
+        this._sparkCpu = null;
+        this._sparkRam = null;
         this._lastAlertAt = new Map();
         this._alertState = new Map();
         this._menuGeneration = 0; // bumped per build; stale async fills check it
@@ -442,8 +443,10 @@ class ProcMonIndicator extends PanelMenu.Button {
                 this._lastCpuTicks = ticks;
             this._memory = parseMemInfo(memText) ?? this._memory;
 
-            if (this._sparkValue)
-                this._sparkValue.text = `${iso(Math.round(this._cpuPercent))}% CPU · ${iso(this._memory ? Math.round(percentOf(this._memory.usedMb, this._memory.totalMb)) : 0)}% RAM`;
+            sparkline.setSparkValue(this, this._cpuPercent,
+                this._memory && this._memory.totalMb > 0
+                    ? percentOf(this._memory.usedMb, this._memory.totalMb)
+                    : 0);
 
             void this._refreshThermalSensors();
             this._updatePanelLabel();
@@ -940,7 +943,8 @@ class ProcMonIndicator extends PanelMenu.Button {
         });
         this._ui = {};
                 this._sparkArea = null;
-                this._sparkValue = null;
+                this._sparkCpu = null;
+                this._sparkRam = null;
                 this._sparkCpuRow = null;
                 this._sparkRamRow = null;
 

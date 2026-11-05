@@ -189,7 +189,6 @@
 .procmon-acc-title {
     font-size: 10px;
     font-weight: bold;
-    letter-spacing: 0.6px;
     opacity: 0.55;
 }
 
@@ -328,27 +327,29 @@
     opacity: 0.45;
 }
 
-/* ---- footer actions: one compact toolbar ---- */
+/* ---- footer actions: quiet text buttons, not a button stack ---- */
 .procmon-footer {
-    padding: 4px 0 8px;
-    spacing: 6px;
+    padding: 6px 0 8px;
+    spacing: 2px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .procmon-footer-btn {
     padding: 6px 8px;
     border-radius: 8px;
     spacing: 6px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background-color: transparent;
+    border: 1px solid transparent;
 }
 
 .procmon-footer-btn:hover {
-    background-color: rgba(255, 255, 255, 0.075);
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: transparent;
 }
 
 .procmon-footer-btn:active {
-    background-color: rgba(255, 255, 255, 0.16);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    background-color: rgba(255, 255, 255, 0.10);
+    border-color: transparent;
 }
 
 .procmon-footer-btn:focus {
@@ -376,23 +377,23 @@
     max-width: 420px;
 }
 
-/* ---- level-1 groups: five collapsible containers ---- */
+/* ---- level-1 groups: a divider, not a box (the AI-dashboard tell is
+   stacked rounded cards with borders — tools use ruled rows instead) ---- */
 .procmon-group {
-    border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    margin-top: 4px;
+    margin-top: 2px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 2px;
 }
 
 .procmon-group-header-btn {
     padding: 0px;
-    border-radius: 10px;
+    border-radius: 8px;
 }
 
 .procmon-group-header {
     padding: 8px 10px;
     spacing: 6px;
-    border-radius: 10px;
+    border-radius: 8px;
 }
 
 .procmon-group-header-btn:hover .procmon-group-header {
@@ -458,7 +459,6 @@
 .procmon-sub-title {
     font-size: 10px;
     font-weight: bold;
-    letter-spacing: 0.6px;
     opacity: 0.55;
 }
 
@@ -514,52 +514,36 @@
     border-radius: 5px;
     background-color: rgba(255, 255, 255, 0.06);
 }
-/* ---- sparkline legend ---- */
-.procmon-legend {
-    spacing: 10px;
+/* ---- sparkline: coloured value labels (the colour is the legend) ---- */
+.procmon-sparkline-row {
+    spacing: 8px;
     margin-bottom: 3px;
 }
 
-.procmon-legend-chip {
-    spacing: 4px;
+.procmon-spark-value-cpu {
+    font-size: 11px;
+    font-weight: bold;
+    font-feature-settings: "tnum";
+    color: rgba(53, 132, 228, 0.95);
 }
 
-.procmon-legend-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 4px;
-    y-align: center;
+.procmon-spark-value-ram {
+    font-size: 11px;
+    font-weight: bold;
+    font-feature-settings: "tnum";
+    color: rgba(31, 157, 85, 0.95);
 }
 
-.procmon-legend-dot-cpu {
-    background-color: rgba(53, 132, 228, 0.9);
-}
-
-.procmon-legend-dot-ram {
-    background-color: rgba(51, 209, 122, 0.9);
-}
-
-.procmon-legend-label {
-    font-size: 9px;
-    letter-spacing: 0.4px;
-    opacity: 0.55;
+.procmon-spark-sep {
+    font-size: 11px;
+    opacity: 0.45;
 }
 
 /* ---- sparkline (pure St bars, no Cairo surface) ---- */
-.procmon-sparkline-value {
-    font-size: 10px;
-    font-feature-settings: "tnum";
-    opacity: 0.8;
-    margin-bottom: 3px;
-}
-
 .procmon-sparkbars {
     spacing: 2px;
     height: 32px;
-    padding: 4px 6px;
-    border-radius: 8px;
-    background-color: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 4px 0px;
 }
 
 .procmon-sparkbar {
@@ -570,32 +554,19 @@
 }
 
 .procmon-sparkbars-ram {
-    height: 18px;
-    margin-top: 3px;
-    background-color: rgba(51, 209, 122, 0.05);
+    height: 24px;
+    margin-top: 4px;
 }
 
 .procmon-sparkbar-ram {
     background-color: rgba(51, 209, 122, 0.8);
 }
 
-/* ---- final polish ---- */
+/* ---- dialog note ---- */
 .procmon-dialog-note {
     font-size: 10px;
     opacity: 0.65;
     font-style: italic;
-}
-
-.procmon-footer-btn {
-    padding: 7px 10px;
-}
-
-.procmon-kill {
-    width: 22px;
-    height: 22px;
-    min-width: 22px;
-    min-height: 22px;
-    border-radius: 11px;
 }
 
 .procmon-group-body,

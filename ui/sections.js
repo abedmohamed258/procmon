@@ -376,6 +376,8 @@ function addOptionalSectionBodies(ind, groups, wants) {
 export function addOptionalSections(ind, content) {
         const {groups, wants} = createOptionalGroups(ind, content);
         addOptionalSectionBodies(ind, groups, wants);
+        // stored so the renderers can fill each group's live summary
+        ind._groups = groups;
     }
 
     // wraps the assembled content in the scroll item plus the static actions

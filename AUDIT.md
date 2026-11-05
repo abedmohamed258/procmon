@@ -33,6 +33,23 @@ Method: code read (all 4,476 lines), `gjs` test run, `journalctl /usr/bin/gnome-
 13. `metadata.json` description lists the v1 feature set (no Startup, no alerts, no PSI/sensors detail).
 14. Arabic po: 109 msgids, 4 untranslated — good, but new strings must keep it that way.
 
+## Round 8 (v4.0.0 — de-AI redesign, user-feedback driven)
+
+User verdict on the menu: "looks AI-generated — buttons, placement, UI/UX".
+Screenshot-driven redesign:
+- Groups went from bordered rounded cards to ruled rows (border-top only);
+  header rows are plain left-aligned rows; every group header now shows a
+  live summary (processes count, RAM GB, °C/batch, disk %, GPU %, PSI some).
+- The "final polish" CSS tail was silently overriding the ghost kill button
+  (22px circle!) and footer padding — dead overrides removed; braces and
+  duplicate classes audited.
+- Footer buttons are ghost/text (transparent, hover wash) with a hairline
+  rule above — no more stack of buttons.
+- Legend chips removed: the sparkline value line is now two coloured
+  labels (blue CPU, readable green RAM). Chart frames removed; RAM bars
+  10→14px effective (24px strip). Section titles untracked.
+- Design-tokens test updated to the new classes (still 114 checks).
+
 ## Round 7 (v3.3.0 — controls consolidation)
 
 - Prefs gear moved OUT of the header INTO the footer as an icon-only third

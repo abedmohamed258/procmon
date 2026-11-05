@@ -3,7 +3,7 @@
 
 import Clutter from 'gi://Clutter';
 import St from 'gi://St';
-import {SPARK_SAMPLES, percentOf, _} from './constants.js';
+import {SPARK_SAMPLES, percentOf, iso} from './constants.js';
 
 // The chart is drawn with plain St widgets on purpose: a Cairo surface inside
 // a popup was the one code path that consistently crashed gnome-shell
@@ -33,22 +33,24 @@ function buildBarRow(styleClass, barClass, maxHeight) {
 }
 
 export function addSparkline(ind, content) {
-    ind._sparkValue = new St.Label({
+    // one row, two coloured labels: the colour IS the legend (blue = CPU,
+    // green = RAM) — no separate legend chips, no extra row
+    const row = new St.BoxLayout({style_class: 'procmon-sparkline-row'});
+    ind._sparkCpu = new St.Label({
         text: '',
-        style_class: 'procmon-sparkline-value',
+        style_class: 'procmon-spark-value-cpu',
     });
-    content.add_child(ind._sparkValue);
-
-    // legend: colour chips so the two bar rows are never ambiguous
-    const legend = new St.BoxLayout({style_class: 'procmon-legend'});
-    for (const [cls, word] of [['procmon-legend-dot-cpu', _('CPU')],
-        ['procmon-legend-dot-ram', _('RAM')]]) {
-        const chip = new St.BoxLayout({style_class: 'procmon-legend-chip'});
-        chip.add_child(new St.Widget({style_class: `procmon-legend-dot ${cls}`}));
-        chip.add_child(new St.Label({text: word, style_class: 'procmon-legend-label'}));
-        legend.add_child(chip);
-    }
-    content.add_child(legend);
+    ind._sparkRam = new St.Label({
+        text: '',
+        style_class: 'procmon-spark-value-ram',
+    });
+    row.add_child(ind._sparkCpu);
+    row.add_child(new St.Label({
+        text: '·',
+        style_class: 'procmon-spark-sep',
+    }));
+    row.add_child(ind._sparkRam);
+    content.add_child(row);
 
     const cpu = buildBarRow('procmon-sparkbars', 'procmon-sparkbar', BAR_MAX_HEIGHT);
     const ram = buildBarRow('procmon-sparkbars procmon-sparkbars-ram',
@@ -80,6 +82,14 @@ export function paintSparkline(ind) {
         paintRow(ind._sparkCpuRow, ind._cpuHistory);
     if (ind._sparkRamRow)
         paintRow(ind._sparkRamRow, ind._ramHistory);
+}
+
+// The value line is the legend: blue says CPU, green says RAM.
+export function setSparkValue(ind, cpuPercent, ramPercent) {
+    if (ind._sparkCpu)
+        ind._sparkCpu.text = `${iso(Math.round(cpuPercent))}% CPU`;
+    if (ind._sparkRam)
+        ind._sparkRam.text = `${iso(Math.round(ramPercent))}% RAM`;
 }
 
 export function recordSparkSample(ind) {
